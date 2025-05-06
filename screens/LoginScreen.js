@@ -9,17 +9,27 @@ import FormSeparator from '../components/FormSeparator';
 import LoginInputForm from '../components/InputForm';
 import Button from '../components/LargeButton';
 import { useAuth } from '../contexts/AuthContext';
+import HomeScreen from './HomeScreen';
 
-const LoginScreen = () => {
-	const [cpf, setCpf] = useState('');
+const LoginScreen = ({ navigation }) => {
+	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [rememberMe, setRememberMe] = useState(false);
 	const [isSignUpVisible, setIsSignUpVisible] = useState(false);
 	const separatorOpacity = useRef(new Animated.Value(1)).current;
-	const { login, isLoading, authError } = useAuth();
+	const { login, token, isLoading } = useAuth();
+
+	useEffect(() => {
+		if (token) {
+			navigation.reset({
+				index: 0,
+				routes: [{ name: 'HomeScreen' }]
+			})
+		}
+	}, [token])
 
 	const handleLogin = () => {
-		login(cpf, password);
+		login(email, password);
 	}
 
 	useEffect(() => {
@@ -65,10 +75,10 @@ const LoginScreen = () => {
 			
 				<View style={styles.loginBox}>
 					<LoginInputForm
-						value={cpf}
+						value={email}
 						label="E-mail ou CPF"
-						onChangeText={setCpf}
-						keyboardType="numeric"
+						onChangeText={setEmail}
+						keyboardType="default"
 						autoCapitalize="none"
 					/>
 					<LoginInputForm

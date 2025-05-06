@@ -11,31 +11,18 @@ const Tab = createBottomTabNavigator();
 
 import LoginScreen from './screens/LoginScreen';
 import SplashScreen from './screens/SplashScreen';
-
-// Telas de exemplo apenas!
-function HomeScreen() {
-  return (
-    <Text>Home</Text>
-  )
-}
-
-function ProfileScreen() {
-  return (
-    <Text>Profile</Text>
-  )
-}
+import HomeScreen from './screens/HomeScreen';
 
 function HomeTabs() {
     return (
         <Tab.Navigator>
           <Tab.Screen name="Home" component={HomeScreen}/>
-          <Tab.Screen name="Profile" component={ProfileScreen}/>
         </Tab.Navigator>
     );
 }
 
 function RootNavigator() {
-  const { user, isLoading } = useAuth();
+  const { token, isLoading } = useAuth();
 
   if (isLoading) {
     return <InitialLoading />
@@ -48,8 +35,11 @@ function RootNavigator() {
         ...TransitionPresets.FadeFromBottomAndroid,
       }}
     >
-      {user ? (
-        <Stack.Screen name="HomeTabs" component={HomeTabs} />
+      {token ? (
+        <>
+          <Stack.Screen name="HomeTabs" component={HomeTabs} />
+          <Stack.Screen name="HomeScreen" component={HomeScreen} />
+        </>
       ) : (
         <>
           <Stack.Screen name="SplashScreen" component={SplashScreen} />

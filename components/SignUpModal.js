@@ -33,8 +33,8 @@ const SignUpModal = ({ visible, onClose }) => {
     const [telefone, setTelefone] = useState('');
     const [dataNascimento, setDataNascimento] = useState('');
     const [rendaMensal, setRendaMensal] = useState('');
+    const { signUp } = useAuth();
 
-    const { signUp, isLoading, authError } = useAuth();
     const handleSignUp = () => {
         signUp(nome, sobrenome, email, senha, cpf, telefone, dataNascimento, rendaMensal)
     }
