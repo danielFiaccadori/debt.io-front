@@ -98,7 +98,7 @@ const SignUpModal = ({ visible, onClose }) => {
             {renderField('Sobrenome', sobrenome, setSobrenome)}
             {renderField('Telefone', telefone, setTelefone, 'phone-pad')}
             {renderField('E-mail', email, setEmail, 'email-address')}
-            {renderField('Senha de acesso', senha, setSenha)}
+            {renderField('Senha de acesso', senha, setSenha, 'default', true)}
         </>
     );
 
@@ -118,7 +118,7 @@ const SignUpModal = ({ visible, onClose }) => {
         </View>
     );
 
-    const renderField = (label, value, setter, keyboardType = 'default') => {
+    const renderField = (label, value, setter, keyboardType = 'default', isPassword) => {
         let mask = undefined;
         switch (label) {
             case 'CPF':
@@ -146,6 +146,7 @@ const SignUpModal = ({ visible, onClose }) => {
                 autoCapitalize="none"
                 style="light"
                 mask={mask}
+                secureTextEntry={isPassword}
             />
         );
     } 
@@ -272,6 +273,7 @@ const styles = StyleSheet.create({
     },
     scrollContainer: {
         alignItems: 'center',
+        width: 350,
         marginTop: 20,
         paddingBottom: 30
     },
