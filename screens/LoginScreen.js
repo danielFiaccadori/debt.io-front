@@ -16,27 +16,53 @@ const LoginScreen = ({ navigation }) => {
 	const [password, setPassword] = useState('');
 	const [rememberMe, setRememberMe] = useState(false);
 	const [isSignUpVisible, setIsSignUpVisible] = useState(false);
+	const [errorMessage, setErrorMessage] = useState('');
 	const separatorOpacity = useRef(new Animated.Value(1)).current;
+	const errorOpacity = useRef(new Animated.Value(0)).current;
 	const { login, token, isLoading } = useAuth();
 
-	useEffect(() => {
-		if (token) {
-			navigation.reset({
-				index: 0,
-				routes: [{ name: 'HomeScreen' }]
-			})
-		}
-	}, [token])
+	const handleLogin = async () => {
+		setErrorMessage('');
+		const response = await login(email, password);
+			
+		if (response.success) {
+			console.log('Usuário logado com sucesso: ', response.message);
+		} else {
+			setErrorMessage(response.message);
 
-	const handleLogin = () => {
-		login(email, password);
-	}
+			Animated.timing(separatorOpacity, {
+				toValue: 0,
+				duration: 300,
+				useNativeDriver: true
+			}).start();
+
+			Animated.timing(errorOpacity, {
+				toValue: 1,
+				duration: 300,
+				useNativeDriver: true
+			}).start(() => {
+				setTimeout(() => {
+					Animated.timing(errorOpacity, {
+						toValue: 0,
+						duration: 300,
+						useNativeDriver: true
+					}).start();
+
+					Animated.timing(separatorOpacity, {
+						toValue: 1,
+						duration: 300,
+						useNativeDriver: true
+					}).start(() => setErrorMessage(''));
+				}, 5000);
+			});
+		}
+	};
 
 	useEffect(() => {
 		const showSub = Keyboard.addListener('keyboardDidShow', () => {
 		  Animated.timing(separatorOpacity, {
 			toValue: 0,
-			duration: 250,
+			duration: 200,
 			useNativeDriver: true,
 			easing: Easing.out(Easing.ease),
 		  }).start();
@@ -45,7 +71,7 @@ const LoginScreen = ({ navigation }) => {
 		const hideSub = Keyboard.addListener('keyboardDidHide', () => {
 		  Animated.timing(separatorOpacity, {
 			toValue: 1,
-			duration: 250,
+			duration: 200,
 			useNativeDriver: true,
 			easing: Easing.out(Easing.ease),
 		  }).start();
@@ -62,10 +88,16 @@ const LoginScreen = ({ navigation }) => {
 			<SafeAreaView style={styles.container}>
 				<View style={styles.topMessageContainer}>
 					<LoginAnimation source={require('../assets/animations/login_animation.json')} loop={false}/>
-					<Animated.View style={{ opacity: separatorOpacity }}>
+					{errorMessage ? (
+						<Animated.View style={[styles.errorMessageContainer, { opacity: errorOpacity }]}>
+						<Text style={styles.errorMessage}>{errorMessage}</Text>
+						</Animated.View>
+					) : (
+						<Animated.View style={[styles.errorMessageContainer, { opacity: separatorOpacity }]}>
 						<FormSeparator text="login" />
-					</Animated.View>
-				</View>
+						</Animated.View>
+					)}
+					</View>
 				<KeyboardAvoidingView
 					behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
 					style={{ flex: 1 }}
@@ -76,7 +108,7 @@ const LoginScreen = ({ navigation }) => {
 				<View style={styles.loginBox}>
 					<LoginInputForm
 						value={email}
-						label="E-mail ou CPF"
+						label="E-mail"
 						onChangeText={setEmail}
 						keyboardType="default"
 						autoCapitalize="none"
@@ -206,6 +238,20 @@ const styles = StyleSheet.create({
 		fontSize: 12.5,
 		color: '#5a66d1',
 		fontFamily: 'Inter_400Regular',
+	},
+	errorMessageContainer: { 
+		width: '100%', 
+		alignItems: 'center', 
+		paddingHorizontal: 20, 
+		paddingVertical: 10, 
+		borderRadius: 10, 
+		marginBottom: 50,
+		marginTop: -40
+	},
+  	errorMessage: {
+		color: 'red', 
+		fontSize: 12,
+		textAlign: 'center'
 	}
 });
 

@@ -18,12 +18,10 @@ const styles = StyleSheet.create({
     line: {
 		flex: 1,
 		height: 1,
-		marginTop: -100,
 		backgroundColor: '#2d343f'
 	},
 	separatorText: {
 		marginHorizontal: 10,
-		marginTop: -100,
 		color: '#aaa',
 		fontSize: 12,
 		fontFamily: 'Inter_400Regular',
@@ -34,8 +32,6 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'center',
 		width: '75%',
-		marginTop: 20,
-		marginBottom: 20,
 		alignSelf: 'center'
 	}
 })

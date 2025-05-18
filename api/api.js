@@ -1,7 +1,7 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
-const API_URL = 'http://192.168.1.15:8080'
+const API_URL = 'http://192.168.1.3:8080'
 
 const api = axios.create({
   baseURL: API_URL
@@ -17,23 +17,31 @@ api.interceptors.request.use(async (config) => {
   return Promise.reject(error);
 });
 
-//TODO: Mudar as requisi��es HTTP quando finalizarmos
 export const loginUser = async (email, password) => {
   try {
     const response = await api.post('/api/v1/auth/login', { email, password });
+    console.log('API Response:', response.data);
 
-    return response.data.result;
+    return {
+      success: response.data.success,
+      message: response.data.message,
+      result: response.data.result || null,
+    };
   } catch (error) {
-    console.error('Login error: ', error);
-    if (error.response?.data?.validations) {
-      for (const err of error.response.data.validations) {
-        console.warn(`${err.field}: ${err.message}`);
-      }
-    }
+    console.log('Login error: ', error.response?.data?.message);
 
-    return null;
+    const { message, code, validations } = error.response?.data || {};
+
+    return {
+      success: false,
+      message: message || "Erro desconhecido.",
+      result: null,
+      code: code || "UNKNOWN_ERROR",
+      validations: validations || [],
+    };
   }
 };
+
 
 export const signUpUser = async (
   nome,

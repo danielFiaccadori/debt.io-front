@@ -122,7 +122,12 @@ const SplashScreen = ({ navigation }) => {
 						/>
 					</View>
 
-					<BlurView intensity={40} tint="dark" style={styles.titleContainer}>
+					<BlurView 
+						intensity={40} 
+						tint="dark" 
+						style={styles.titleContainer}
+						experimentalBlurMethod='none'
+						>
 						<View style={styles.dotsContainer}>
 						{slides.map((_, index) => {
 							const inputRange = [
