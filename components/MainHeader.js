@@ -44,9 +44,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingHorizontal: 20,
         paddingVertical: 20,
-        backgroundColor: 'rgba(12, 12, 12, 0.5)',
-        borderBottomLeftRadius: 30,
-        borderBottomRightRadius: 30
+        backgroundColor: '#183D3D'
     },
     greetingsContainer: {
         flexDirection: 'row',

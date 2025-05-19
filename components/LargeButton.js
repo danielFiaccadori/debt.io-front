@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     button: {
-        backgroundColor: '#5a66d1',
+        backgroundColor: '#5C8374',
         padding: 15,
         paddingHorizontal: 50,
         minWidth: '30%',

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 
-const StepDotsIndicator = ({ currentStep, totalSteps = 3, activeColor = '#5a66d1', inactiveColor = '#d1d3e0', size = 12, spacing = 8 }) => {
+const StepDotsIndicator = ({ currentStep, totalSteps = 3, activeColor = '#5C8374', inactiveColor = '#a8e0ca', size = 12, spacing = 8 }) => {
   const dots = [];
 
   for (let i = 1; i <= totalSteps; i++) {

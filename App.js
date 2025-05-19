@@ -30,7 +30,7 @@ const CustomTabBarBackground = () => (
   <BlurView
     experimentalBlurMethod='dimezisBlurView'
     tint='systemChromeMaterialDark'
-    intensity={100}
+    intensity={80}
     style={{
       ...StyleSheet.absoluteFillObject,
       overflow: 'hidden',
@@ -47,23 +47,55 @@ function HomeTabs() {
         headerShown: false,
         tabBarStyle: styles.tabBarStyle,
         tabBarItemStyle: styles.tabBarItemStyle,
-        tabBarActiveTintColor: '#8DD8FF',
-        tabBarInactiveTintColor: '#335161',
+        tabBarActiveTintColor: '#93B1A6',
+        tabBarInactiveTintColor: '#5C8374',
         tabBarShowLabel: false,
-        tabBarIcon: ({ focused, color, size }) => (
-          <View style={focused ? styles.iconContainerActive : styles.iconContainerInactive}>
-            <Octicons name="home" size={size} color={color} />
-          </View>
-        ),
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+
+          switch (route.name) {
+            case 'Home':
+              iconName = 'home';
+              return (
+                <View style={focused ? styles.iconContainerActive : styles.iconContainerInactive}>
+                  <Octicons name={iconName} size={size} color={color} />
+                </View>
+              );
+            case 'Wallet':
+              iconName = 'calendar';
+              return (
+                <View style={focused ? styles.iconContainerActive : styles.iconContainerInactive}>
+                  <Octicons name={iconName} size={size} color={color} />
+                </View>
+              );
+            case 'Expenses':
+              iconName = 'credit-card';
+              return (
+                <View style={focused ? styles.iconContainerActive : styles.iconContainerInactive}>
+                  <Octicons name={iconName} size={size} color={color} />
+                </View>
+              );
+            case 'Profile':
+              iconName = 'person';
+              return (
+                <View style={focused ? styles.iconContainerActive : styles.iconContainerInactive}>
+                  <Octicons name={iconName} size={size} color={color} />
+                </View>
+              );
+            default:
+              return null;
+          }
+        },
       })}
     >
       <Tab.Screen name="Home" component={HomeStack} />
       <Tab.Screen name="Wallet" component={HomeStack} />
+      <Tab.Screen name="Expenses" component={HomeStack} />
       <Tab.Screen name="Profile" component={HomeStack} />
-      <Tab.Screen name="Settings" component={HomeStack} />
     </Tab.Navigator>
   );
 }
+
 
 function RootNavigator() {
   const { token, isLoading } = useAuth();
@@ -121,7 +153,7 @@ const styles = StyleSheet.create({
     height: 60,
   },
   iconContainerActive: {
-    backgroundColor: 'rgba(31, 31, 31, 0.75)',
+    backgroundColor: 'rgba(63, 63, 63, 0.75)',
     borderRadius: 22,
     height: 50,
     width: 60,

@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 24,
 		fontFamily: 'Inter_700Bold',
-        color: '#5a66d1',
+        color: '#5C8374',
         marginBottom: 5
     },
     subtitle: {

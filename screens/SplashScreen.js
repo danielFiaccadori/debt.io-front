@@ -18,7 +18,7 @@ const slides = [
 		image: require('../assets/animations/splash_animation2.json'),
 		title: 'Facilidade e controle',
 		subtitle: 'Gerencie tudo do celular',
-		colors: ['#05050a', '#18172b', '#05050a'],
+		colors: ['#040D12', '#040D12'],
 		size: '600',
 		offset: '90'
 
@@ -28,7 +28,7 @@ const slides = [
 		image: require('../assets/animations/splash_animation1.json'),
 		title: 'Tudo nas suas mãos',
 		subtitle: 'De onde estiver, quando quiser',
-		colors: ['#05050a', '#18172b', '#05050a'],
+		colors: ['#040D12', '#040D12'],
 		size: '350',
 		offset: '0'	
 	},
@@ -37,7 +37,7 @@ const slides = [
 		image: require('../assets/animations/splash_animation3.json'),
 		title: 'Fácil e simples',
 		subtitle: 'Promovendo controle',
-		colors: ['#05050a', '#18172b', '#05050a'],
+		colors: ['#040D12', '#040D12'],
 		size: '350',
 		offset: '0',
 	}

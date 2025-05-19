@@ -158,7 +158,7 @@ const LoginScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: "#0d0d11"
+		backgroundColor: "#040D12"
 	},
 	topMessageContainer: {
 		height: '30%',
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
 		width: 20,
 		height: 20,
 		borderWidth: 1,
-		borderColor: '#5a66d1',
+		borderColor: '#5C8374',
 		borderRadius: 7,
 		justifyContent: 'center',
 		alignItems: 'center',
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
 	checked: {
 		width: 12,
 		height: 12,
-		backgroundColor: '#5a66d1',
+		backgroundColor: '#5C8374',
 		borderRadius: 4
 	},
 	rememberText: {
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
 	},
 	registerLinkText: {
 		fontSize: 12.5,
-		color: '#5a66d1',
+		color: '#5C8374',
 		fontFamily: 'Inter_400Regular',
 	},
 	errorMessageContainer: { 

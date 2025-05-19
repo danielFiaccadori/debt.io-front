@@ -8,7 +8,7 @@ import * as NavigationBar from 'expo-navigation-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ScrollView } from 'react-native-gesture-handler';
 import MainHeader from '../components/MainHeader';
-import BalanceCard from '../components/BalanceCard';
+import { BalanceCard } from '../components/BalanceCard';
 
 const HomeScreen = () => {
 
@@ -24,13 +24,13 @@ const HomeScreen = () => {
        return (
               <SafeAreaProvider>
                      <LinearGradient
-                            colors={['#05050a', '#18172b']}
+                            colors={['#0f2626', '#040D12']}
                             start={{ x: 0, y: 0 }}
                             end={{ x: 0, y: 1 }}
                             style={styles.gradient}
                      >
                             <SafeAreaView style={styles.container}>
-                                   <StatusBar translucent backgroundColor="transparent" style="light" />
+                                   <StatusBar translucent backgroundColor="#183D3D" style="light" />
                                    <ScrollView
                                           contentContainerStyle={styles.scrollContainer}
                                           showsVerticalScrollIndicator={false}>
@@ -38,6 +38,11 @@ const HomeScreen = () => {
                                                  <MainHeader />
                                           </View>
                                           <View style={styles.contentContainer}>
+                                                 <BalanceCard />
+                                                 <BalanceCard />
+                                                 <BalanceCard />
+                                                 <BalanceCard />
+                                                 <BalanceCard />
                                                  <BalanceCard />
                                           </View>
                                           <SplashLargeButton onPress={handleLogOut} placeholder="Sair" />

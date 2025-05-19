@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
         zIndex: 10,
     },
     darkInput: {
-        backgroundColor: '#16171d',
+        backgroundColor: '#121f26',
         color: 'white',
         width: '100%',
         borderWidth: 0.25,
