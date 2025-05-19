@@ -28,9 +28,14 @@ function HomeStack() {
  */
 const CustomTabBarBackground = () => (
   <BlurView
-    tint='dark'
-    intensity={40}
-    style={styles.tabBarBackground}
+    experimentalBlurMethod='dimezisBlurView'
+    tint='systemChromeMaterialDark'
+    intensity={100}
+    style={{
+      ...StyleSheet.absoluteFillObject,
+      overflow: 'hidden',
+      backgroundColor: 'transparent'
+    }}
   />
 );
 
@@ -42,11 +47,11 @@ function HomeTabs() {
         headerShown: false,
         tabBarStyle: styles.tabBarStyle,
         tabBarItemStyle: styles.tabBarItemStyle,
-        tabBarActiveTintColor: '#5f9afa',
-        tabBarInactiveTintColor: '#2e335c',
+        tabBarActiveTintColor: '#8DD8FF',
+        tabBarInactiveTintColor: '#335161',
         tabBarShowLabel: false,
         tabBarIcon: ({ focused, color, size }) => (
-          <View style={styles.iconContainer}>
+          <View style={focused ? styles.iconContainerActive : styles.iconContainerInactive}>
             <Octicons name="home" size={size} color={color} />
           </View>
         ),
@@ -101,27 +106,32 @@ const styles = StyleSheet.create({
   },
   tabBarStyle: {
     position: 'absolute',
-    backgroundColor: 'rgba(0, 0, 0, 0.9)',
-    height: 80,
-    borderRadius: 50,
+    height: 70,
+    borderRadius: 30,
     borderTopWidth: 0,
-    elevation: 5,
+    elevation: 2,
     overflow: 'hidden',
     bottom: 40,
-    marginHorizontal: 20,
+    marginHorizontal: 40,
     borderWidth: 0,
   },
   tabBarItemStyle: {
-    marginTop: 10,
-    paddingVertical: 10,
-    borderRadius: 40,
+    top: 5,
+    padding: 10,
+    height: 60,
   },
-  tabBarBackground: {
-    flex: 1,
-    borderRadius: 50,
-    overflow: 'hidden',
+  iconContainerActive: {
+    backgroundColor: 'rgba(31, 31, 31, 0.75)',
+    borderRadius: 22,
+    height: 50,
+    width: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  iconContainer: {
+  iconContainerInactive: {
+    borderRadius: 20,
+    height: 50,
+    width: 60,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -1,54 +1,77 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { loginUser, signUpUser } from '../api/api';
+import { loginUser, signUpUser, getUserData } from '../api/api';
 import * as SecureStore from 'expo-secure-store';
 
 const AuthContext = createContext({});
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadStorageData = async () => {
       const savedToken = await SecureStore.getItemAsync('token');
+      const savedUserId = await SecureStore.getItemAsync('userId');
+
       if (savedToken) {
         setToken(savedToken);
       }
+      if (savedUserId) {
+        setUserId(savedUserId);
+      }
+
       setIsLoading(false);
     };
     loadStorageData();
   }, []);
 
-  async function login(username, password) {
-  setIsLoading(true);
-  try {
-    const data = await loginUser(username, password);
-    console.log('Full response:', data);
+  async function getLoggedUserData() {
+    try {
+      if (!userId) {
+        console.warn('User ID não encontrado.');
+        return null;
+      }
 
-    if (data.success && data.result?.token) {
-      setToken(data.result.token);
-      await SecureStore.setItemAsync('token', data.result.token);
+      const response = await getUserData(userId);
+      setUserData(response.result);
+
+    } catch (error) {
+      console.error('Erro ao obter os dados do usuário:', error);
     }
-
-    return {
-      token: data.result?.token || null,
-      message: data.message,
-      success: data.success,
-    };
-  } catch (error) {
-    console.error('Login error', error);
-
-    return {
-      success: false,
-      message: "Erro ao realizar login.",
-      token: null,
-    };
-  } finally {
-    setIsLoading(false);
   }
-}
 
+  async function login(username, password) {
+    setIsLoading(true);
+    try {
+      const data = await loginUser(username, password);
+      console.log('Full response:', data);
 
+      if (data.success && data.result?.token) {
+        setToken(data.result.token);
+        setUserId(data.userId);
+        await SecureStore.setItemAsync('token', data.result.token);
+        await SecureStore.setItemAsync('userId', data.userId);
+      }
+
+      return {
+        token: data.result?.token || null,
+        message: data.message,
+        success: data.success,
+      };
+    } catch (error) {
+      console.error('Login error', error);
+
+      return {
+        success: false,
+        message: "Erro ao realizar login.",
+        token: null,
+      };
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   async function signUp(name, surname, email, password, cpf, phone, birthDate, monthlyIncome) {
     setIsLoading(true);
@@ -68,7 +91,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ token, isLoading, login, signOut, signUp }}>
+    <AuthContext.Provider value={{ token, isLoading, login, signOut, signUp, getLoggedUserData, userData }}>
       {children}
     </AuthContext.Provider>
   );

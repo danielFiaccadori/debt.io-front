@@ -5,6 +5,10 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SplashLargeButton from '../components/LargeButton';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import * as NavigationBar from 'expo-navigation-bar';
+import { LinearGradient } from 'expo-linear-gradient';
+import { ScrollView } from 'react-native-gesture-handler';
+import MainHeader from '../components/MainHeader';
+import BalanceCard from '../components/BalanceCard';
 
 const HomeScreen = () => {
 
@@ -15,26 +19,52 @@ const HomeScreen = () => {
 
        const handleLogOut = () => {
               signOut();
-       }
+       };
 
        return (
               <SafeAreaProvider>
-                     <SafeAreaView style={styles.container}>
-                            <StatusBar translucent backgroundColor="transparent" style="light" />
-                            <Text style={{color: 'white', fontSize: 20}}>Quer conteúdo? Pede pro Kaique</Text>
-                            <SplashLargeButton onPress={handleLogOut} placeholder="LogOut"/>
-                     </SafeAreaView>
+                     <LinearGradient
+                            colors={['#05050a', '#18172b']}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 0, y: 1 }}
+                            style={styles.gradient}
+                     >
+                            <SafeAreaView style={styles.container}>
+                                   <StatusBar translucent backgroundColor="transparent" style="light" />
+                                   <ScrollView
+                                          contentContainerStyle={styles.scrollContainer}
+                                          showsVerticalScrollIndicator={false}>
+                                          <View style={styles.headerContainer}>
+                                                 <MainHeader />
+                                          </View>
+                                          <View style={styles.contentContainer}>
+                                                 <BalanceCard />
+                                          </View>
+                                          <SplashLargeButton onPress={handleLogOut} placeholder="Sair" />
+                                   </ScrollView>
+                            </SafeAreaView>
+                     </LinearGradient>
               </SafeAreaProvider>
        );
-}
+};
 
 export default HomeScreen;
 
 const styles = StyleSheet.create({
+       gradient: {
+		flex: 1,
+	},
        container: {
-              backgroundColor: "#0d0d0d",
               flex: 1,
-              alignItems: 'center',
-              justifyContent: 'center'
        },
+       contentText: {
+              color: 'white',
+              fontSize: 16,
+              marginBottom: 10,
+              fontFamily: 'Inter_400Regular',
+       },
+       contentContainer: {
+              paddingHorizontal: 20,
+              paddingVertical: 20
+       }
 });

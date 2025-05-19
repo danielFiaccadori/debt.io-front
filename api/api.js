@@ -17,14 +17,26 @@ api.interceptors.request.use(async (config) => {
   return Promise.reject(error);
 });
 
+export const getUserData = async (id) => {
+  try {
+    const response = await api.get(`/api/v1/usuario/id/${id}`);
+    console.log('API data obtido: ', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error obtaining user data:', error);
+    return null;
+  }
+};
+
 export const loginUser = async (email, password) => {
   try {
     const response = await api.post('/api/v1/auth/login', { email, password });
-    console.log('API Response:', response.data);
+    console.log('API Response: ', response.data);
 
     return {
       success: response.data.success,
       message: response.data.message,
+      userId: response.data.result.id,
       result: response.data.result || null,
     };
   } catch (error) {
