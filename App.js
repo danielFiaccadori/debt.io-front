@@ -14,6 +14,7 @@ const Tab = createBottomTabNavigator();
 import LoginScreen from './screens/LoginScreen';
 import SplashScreen from './screens/SplashScreen';
 import HomeScreen from './screens/HomeScreen';
+import DebtsScreen from './screens/DebtsScreen';
 
 function HomeStack() {
   return (
@@ -89,7 +90,7 @@ function HomeTabs() {
       })}
     >
       <Tab.Screen name="Home" component={HomeStack} />
-      <Tab.Screen name="Wallet" component={HomeStack} />
+      <Tab.Screen name="Wallet" component={DebtsScreen} />
       <Tab.Screen name="Expenses" component={HomeStack} />
       <Tab.Screen name="Profile" component={HomeStack} />
     </Tab.Navigator>

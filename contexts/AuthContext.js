@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { loginUser, signUpUser, getUserData } from '../api/api';
+import { loginUser, signUpUser, getUserData, getBalance, getDebts, listDebts } from '../api/api';
 import * as SecureStore from 'expo-secure-store';
 
 const AuthContext = createContext({});
@@ -8,6 +8,9 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(null);
   const [userId, setUserId] = useState(null);
   const [userData, setUserData] = useState(null);
+  const [userBalance, setUserBalance] = useState(null);
+  const [userDebtList, setUserDebtList] = useState(null);
+  const [userDebts, setUserDebts] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -27,6 +30,52 @@ export function AuthProvider({ children }) {
     loadStorageData();
   }, []);
 
+  async function getUserDebtList() {
+    try {
+      if (!userId) {
+        console.warn('User ID não encontrado.');
+        return null;
+      }
+
+      const response = await listDebts(userId);
+      console.log(response)
+      setUserDebtList(response.result);
+
+    } catch (error) {
+      console.error('Erro ao obter dados das Debts do usuário: ', error);
+    }
+  }
+
+  async function getUserDebts() {
+    try {
+      if (!userId) {
+        console.warn('User ID não encontrado.');
+        return null;
+      }
+
+      const response = await getDebts(userId);
+      setUserDebts(response.result);
+
+    } catch (error) {
+      console.error('Erro ao obter dados das Debts do usuário: ', error);
+    }
+  }
+
+  async function getUserBalance() {
+    try {
+      if (!userId) {
+        console.warn('User ID não encontrado.');
+        return null;
+      }
+
+      const response = await getBalance(userId);
+      setUserBalance(response.result);
+
+    } catch (error) {
+      console.error('Erro ao obter dados das Debts do usuário: ', error);
+    }
+  }
+
   async function getLoggedUserData() {
     try {
       if (!userId) {
@@ -38,7 +87,7 @@ export function AuthProvider({ children }) {
       setUserData(response.result);
 
     } catch (error) {
-      console.error('Erro ao obter os dados do usuário:', error);
+      console.error('Erro ao obter os dados do usuário: ', error);
     }
   }
 
@@ -91,7 +140,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ token, isLoading, login, signOut, signUp, getLoggedUserData, userData }}>
+    <AuthContext.Provider value={{ token, isLoading, login, signOut, signUp, getLoggedUserData, getUserBalance, userData, userBalance, getUserDebts, userDebts, getUserDebtList, userDebtList }}>
       {children}
     </AuthContext.Provider>
   );

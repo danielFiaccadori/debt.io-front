@@ -44,6 +44,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingHorizontal: 20,
         paddingVertical: 20,
+        borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 20,
         backgroundColor: '#183D3D'
     },
     greetingsContainer: {

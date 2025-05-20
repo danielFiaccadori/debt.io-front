@@ -1,7 +1,8 @@
+import { useEffect } from "react";
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { useAuth } from "../contexts/AuthContext";
+import { View, Text, StyleSheet, FlatList } from "react-native";
 import { BarChart } from "react-native-chart-kit";
+import { useAuth } from "../contexts/AuthContext";
 
 const data = {
   labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
@@ -13,6 +14,18 @@ const data = {
     },
   ],
 };
+
+function formatCurrencyShort(value) {
+  const number = typeof value === 'bigint' ? Number(value) : value;
+
+  if (number >= 1_000_000) {
+    return `R$ ${(number / 1_000_000).toFixed(1)}M`;
+  } else if (number >= 1_000) {
+    return `R$ ${(number / 1_000).toFixed(1)}k`;
+  } else {
+    return `R$ ${number.toFixed(2)}`;
+  }
+}
 
 const chartConfig = {
   backgroundGradientFrom: 'rgb(158, 175, 136)',
@@ -30,47 +43,144 @@ const chartConfig = {
   },
 };
 
+export const LastDebts = () => {
+  const { getUserDebtList, userDebtList } = useAuth();
+
+  useEffect(() => {
+    if (!userDebtList) {
+      getUserDebtList();
+    }
+  }, [userDebtList]);
+
+  const lastThreeDebts = Array.isArray(userDebtList)
+    ? userDebtList.slice(-3).reverse()
+    : [];
+
+  const renderItem = ({ item }) => (
+    <View style={styles.debtItem}>
+      <Text style={styles.name}>{item.nomeCompra}</Text>
+      <Text style={styles.valor}>R$ {item.valor.toFixed(2)}</Text>
+      <Text style={styles.data}>Vencimento: {item.dataVencimento}</Text>
+      <Text style={styles.categoria}>Categoria: {item.categoria}</Text>
+    </View>
+  );
+
+  return (
+    <View style={styles.lastDebtsContainer}>
+      <Text style={styles.lastDebtsHeader}>Atividade</Text>
+      <FlatList
+        data={lastThreeDebts}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={renderItem}
+      />
+    </View>
+  );
+};
 
 export const BalanceCard = () => {
-    return (
-        <View style={styles.container}>
-            <Text style={styles.balanceSub}>Você pode gastar até</Text>
-            <Text style={styles.balanceText}>$55,7k</Text>
-            <BarChart
-                data={data}
-                width={310}
-                height={110}
-                chartConfig={chartConfig}
-                bezier
-                style={{
-                    marginVertical: 8,
-                    borderRadius: 16,
-                }}
-            />
-        </View>
-    );
+  const { getUserBalance, userBalance, getUserDebts, userDebts } = useAuth();
+
+  useEffect(() => {
+    if (!userBalance || !userDebts) {
+      getUserBalance();
+    }
+  }, [userBalance]);
+
+  useEffect(() => {
+    if (!userBalance || !userDebts) {
+      getUserDebts();
+    }
+  }, [userDebts]);
+
+  function total() {
+    return userBalance - userDebts;
+  }
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.balanceSub}>Você pode gastar até</Text>
+      <Text style={styles.balanceText}>
+        {userBalance != null
+          ? formatCurrencyShort(total())
+          : 'Calculando...'}
+      </Text>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        justifyContent: 'center',
-        alignItems: 'flex-start',
-        paddingHorizontal: 20,
-        borderWidth: 0.75,
-        borderColor: 'rgba(32, 83, 83, 0.73)',
-        paddingVertical: 20,
-        backgroundColor: 'rgba(24, 61, 61, 0.5)',
-        borderRadius: 20,
-        marginVertical: 10
-    },
-    balanceText: {
-        fontSize: 40,
-        color: 'white',
-        fontFamily: 'Inter_700Bold',
-    },
-    balanceSub: {
-        fontSize: 15,
-        color: 'white',
-        fontFamily: 'Inter_400Regular',
-    }
-})
+  container: {
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    paddingHorizontal: 20,
+    borderWidth: 0.75,
+    borderColor: 'rgba(32, 83, 83, 0.73)',
+    paddingVertical: 20,
+    backgroundColor: 'rgba(24, 61, 61, 0.5)',
+    borderRadius: 20,
+    marginVertical: 10,
+  },
+  lastDebtsContainer: {
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    borderWidth: 0.75,
+    borderColor: 'rgba(32, 83, 83, 0.73)',
+    paddingVertical: 20,
+    backgroundColor: 'rgba(24, 61, 61, 0.5)',
+    borderRadius: 20,
+    marginVertical: 10,
+    height: 435,
+  },
+  lastDebtsHeader: {
+    fontSize: 17.5,
+    color: 'white',
+    fontFamily: 'Inter_700Bold',
+    marginBottom: 10,
+  },
+  balanceText: {
+    fontSize: 40,
+    color: 'white',
+    fontFamily: 'Inter_700Bold',
+  },
+  balanceSub: {
+    fontSize: 15,
+    color: 'white',
+    fontFamily: 'Inter_400Regular',
+  },
+
+  // Items list styles
+  debtItem: {
+    width: '100%',
+    backgroundColor: 'rgba(22, 73, 73, 0.38)',
+    padding: 15,
+    borderRadius: 3,
+    borderTopRightRadius: 10,
+    borderBottomRightRadius: 10,
+    marginBottom: 10,
+    borderLeftWidth: 4,
+    borderLeftColor: '#5C8374',
+  },
+  name: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    fontFamily: 'Inter_700Bold',
+  },
+  valor: {
+    fontSize: 15,
+    color: '#D2DE32',
+    marginTop: 4,
+    fontFamily: 'Inter_400Regular',
+  },
+  data: {
+    fontSize: 13,
+    color: '#ccc',
+    marginTop: 2,
+    fontFamily: 'Inter_400Regular',
+  },
+  categoria: {
+    fontSize: 12,
+    color: '#A9BDBD',
+    marginTop: 2,
+    fontFamily: 'Inter_400Regular',
+  },
+});

@@ -17,10 +17,37 @@ api.interceptors.request.use(async (config) => {
   return Promise.reject(error);
 });
 
+export const listDebts = async(id) => {
+  try {
+    const response = await api.get(`/api/v1/contas/listar/usuario/${id}`);
+    console.log('Debt list: ', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error obtaining user debt list: ', error);
+  }
+}
+
+export const getDebts = async (id) => {
+  try {
+    const response = await api.get(`/api/v1/contas/total-gasto-mes/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error obtaining user debts: ', error);
+  }
+}
+
+export const getBalance = async (id) => {
+  try {
+    const response = await api.get(`/api/v1/contas/saldo-disponivel/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error obtaining user balance: ', error);
+  }
+}
+
 export const getUserData = async (id) => {
   try {
     const response = await api.get(`/api/v1/usuario/id/${id}`);
-    console.log('API data obtido: ', response.data);
     return response.data;
   } catch (error) {
     console.error('Error obtaining user data:', error);
