@@ -8,7 +8,7 @@ import * as NavigationBar from 'expo-navigation-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ScrollView } from 'react-native-gesture-handler';
 import MainHeader from '../components/MainHeader';
-import { BalanceCard } from '../components/BalanceCard';
+import { BalanceCard, BalanceProgressCircle } from '../components/BalanceCard';
 
 const HomeScreen = () => {
 
@@ -39,11 +39,7 @@ const HomeScreen = () => {
                                           </View>
                                           <View style={styles.contentContainer}>
                                                  <BalanceCard />
-                                                 <BalanceCard />
-                                                 <BalanceCard />
-                                                 <BalanceCard />
-                                                 <BalanceCard />
-                                                 <BalanceCard />
+                                                 <BalanceProgressCircle/>
                                           </View>
                                           <SplashLargeButton onPress={handleLogOut} placeholder="Sair" />
                                    </ScrollView>

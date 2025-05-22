@@ -3,6 +3,7 @@ import React from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
 import { BarChart } from "react-native-chart-kit";
 import { useAuth } from "../contexts/AuthContext";
+import { AnimatedCircularProgress } from "react-native-circular-progress";
 
 const data = {
   labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
@@ -41,6 +42,37 @@ const chartConfig = {
     strokeWidth: '2',
     stroke: '#ffa726',
   },
+};
+
+export const BalanceProgressCircle = () => {
+  const { userBalance = 0, userDebts = 0 } = useAuth();
+
+  const total = userBalance;
+  const spent = userDebts;
+  const remaining = total - spent;
+  const fill = total === 0 ? 0 : (remaining / total) * 100;
+
+  return (
+    <View style={styles.container}>
+      <AnimatedCircularProgress
+        size={250}
+        width={15}
+        fill={fill}
+        tintColor="#6C63FF"
+        backgroundColor="#2C2F4A"
+        arcSweepAngle={240}
+        rotation={240}
+        lineCap="round"
+      >
+        {(fill) => (
+          <>
+            <Text style={styles.value}>{remaining.toFixed(2)}</Text>
+            <Text style={styles.label}>DISPONÍVEL</Text>
+          </>
+        )}
+      </AnimatedCircularProgress>
+    </View>
+  );
 };
 
 export const LastDebts = () => {
@@ -183,4 +215,16 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontFamily: 'Inter_400Regular',
   },
+  //Circular progress
+  value: {
+    fontSize: 28,
+    color: '#FFFFFF',
+    fontFamily: 'Inter_700Bold',
+  },
+  label: {
+    fontSize: 12,
+    color: '#B2B2B2',
+    fontFamily: 'Inter_400Regular',
+  },
+
 });

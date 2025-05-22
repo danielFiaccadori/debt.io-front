@@ -2,14 +2,19 @@ import React from 'react';
 import { useEffect } from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
+import SmallNoBgButton from './SmallNoBgButton';
 
 const MainHeader = () => {
 
     const { userData, getLoggedUserData, isLoading } = useAuth();
 
+    const onPress = () => {
+        return (true)
+    }
+
     useEffect(() => {
         if (!userData) {
-        getLoggedUserData();
+            getLoggedUserData();
         }
     }, [userData]);
 
@@ -24,14 +29,21 @@ const MainHeader = () => {
     return (
         <View style={styles.container}>
             <View style={styles.greetingsContainer}>
-                <Image
-                    style={styles.profilePic}
-                    source={require('../assets/debt.io-logo.png')}
-                />
-                <View style={{left: 10, top: 6}}>
-                    <Text style={styles.greetingsSub}>Bem-vindo de volta</Text>
-                    <Text style={styles.greetings}>{userData.nome}</Text>
+
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Image
+                        style={styles.profilePic}
+                        source={require('../assets/debt.io-logo.png')}
+                    />
+                    <View style={{ marginLeft: 10 }}>
+                        <Text style={styles.greetingsSub}>Bem-vindo de volta</Text>
+                        <Text style={styles.greetings}>{userData.nome}</Text>
+                    </View>
                 </View>
+
+                {/* Ícone à direita */}
+                <SmallNoBgButton icon="bell" onPress={onPress} />
+
             </View>
         </View>
     )
@@ -44,12 +56,16 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingHorizontal: 20,
         paddingVertical: 20,
+        paddingBottom: 40,
         borderBottomLeftRadius: 20,
         borderBottomRightRadius: 20,
         backgroundColor: '#183D3D'
     },
     greetingsContainer: {
         flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginHorizontal: 20,
         marginTop: 40,
     },
     greetings: {
