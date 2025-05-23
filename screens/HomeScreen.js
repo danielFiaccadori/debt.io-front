@@ -8,18 +8,12 @@ import * as NavigationBar from 'expo-navigation-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ScrollView } from 'react-native-gesture-handler';
 import MainHeader from '../components/MainHeader';
-import { BalanceCard, BalanceProgressCircle } from '../components/BalanceCard';
+import { BalanceCard, BalanceProgressCircle, CanWasteCard } from '../components/BalanceCard';
 
 const HomeScreen = () => {
 
        NavigationBar.setBackgroundColorAsync('#ffffff00');
        NavigationBar.setPositionAsync('absolute');
-
-       const { signOut } = useAuth();
-
-       const handleLogOut = () => {
-              signOut();
-       };
 
        return (
               <SafeAreaProvider>
@@ -39,9 +33,9 @@ const HomeScreen = () => {
                                           </View>
                                           <View style={styles.contentContainer}>
                                                  <BalanceCard />
+                                                 <CanWasteCard />
                                                  <BalanceProgressCircle/>
                                           </View>
-                                          <SplashLargeButton onPress={handleLogOut} placeholder="Sair" />
                                    </ScrollView>
                             </SafeAreaView>
                      </LinearGradient>

@@ -1,20 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import React from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
 import { BarChart } from "react-native-chart-kit";
 import { useAuth } from "../contexts/AuthContext";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
-
-const data = {
-  labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-  datasets: [
-    {
-      data: [20, 45, 28, 80, 99, 43],
-      color: (opacity = 1) => `rgba(134, 65, 244, ${opacity})`,
-      strokeWidth: 2,
-    },
-  ],
-};
+import { Dimensions } from "react-native";
+import LoginInputForm from "./InputForm";
+import { Masks } from "react-native-mask-input";
 
 function formatCurrencyShort(value) {
   const number = typeof value === 'bigint' ? Number(value) : value;
@@ -53,16 +45,17 @@ export const BalanceProgressCircle = () => {
   const fill = total === 0 ? 0 : (remaining / total) * 100;
 
   return (
-    <View style={styles.container}>
+    <View style={styles.balanceContainer}>
+      <Text style={styles.balanceSubMargin}>Relação desse mês</Text>
       <AnimatedCircularProgress
-        size={250}
-        width={15}
+        size={Dimensions.get('window').width - 120}
+        width={30}
         fill={fill}
-        tintColor="#6C63FF"
-        backgroundColor="#2C2F4A"
+        tintColor="#24ff4b"
+        backgroundColor="#26422b"
         arcSweepAngle={240}
         rotation={240}
-        lineCap="round"
+        lineCap='round'
       >
         {(fill) => (
           <>
@@ -109,20 +102,30 @@ export const LastDebts = () => {
   );
 };
 
+export const CanWasteCard = () => {
+  const [value, setValue] = useState('');
+
+  return (
+    <View style={styles.containerMiddle}>
+      <LoginInputForm
+        label="Valor"
+        value={value}
+        onChangeText={setValue}
+        keyboardType="numeric"
+        style="light"
+        mask={Masks.BRL_CURRENCY}
+      />
+    </View>
+  );
+}
+
 export const BalanceCard = () => {
   const { getUserBalance, userBalance, getUserDebts, userDebts } = useAuth();
 
   useEffect(() => {
-    if (!userBalance || !userDebts) {
-      getUserBalance();
-    }
-  }, [userBalance]);
-
-  useEffect(() => {
-    if (!userBalance || !userDebts) {
-      getUserDebts();
-    }
-  }, [userDebts]);
+    getUserBalance();
+    getUserDebts();
+  }, []);
 
   function total() {
     return userBalance - userDebts;
@@ -149,7 +152,17 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(32, 83, 83, 0.73)',
     paddingVertical: 20,
     backgroundColor: 'rgba(24, 61, 61, 0.5)',
-    borderRadius: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    marginVertical: 10,
+  },
+  containerMiddle: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 0.75,
+    borderColor: 'rgba(32, 83, 83, 0.73)',
+    paddingVertical: 30,
+    backgroundColor: 'rgba(24, 61, 61, 0.5)',
     marginVertical: 10,
   },
   lastDebtsContainer: {
@@ -161,7 +174,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(24, 61, 61, 0.5)',
     borderRadius: 20,
     marginVertical: 10,
-    height: 435,
+    height: 420,
   },
   lastDebtsHeader: {
     fontSize: 17.5,
@@ -226,5 +239,21 @@ const styles = StyleSheet.create({
     color: '#B2B2B2',
     fontFamily: 'Inter_400Regular',
   },
-
+  balanceContainer: {
+    padding: 30,
+    justifyContent: 'center',
+    borderWidth: 0.75,
+    borderColor: 'rgba(32, 83, 83, 0.73)',
+    alignItems: 'center',
+    backgroundColor: 'rgba(24, 61, 61, 0.5)',
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    marginVertical: 10,
+  },
+  balanceSubMargin: {
+    fontSize: 12,
+    marginBottom: 35,
+    color: 'white',
+    fontFamily: 'Inter_400Regular',
+  },
 });
