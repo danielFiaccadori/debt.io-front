@@ -85,7 +85,7 @@ export const LastDebts = () => {
   }, [userDebtList]);
 
   const lastThreeDebts = Array.isArray(userDebtList)
-    ? userDebtList.slice(-3).reverse()
+    ? userDebtList.reverse()
     : [];
 
   const renderItem = ({ item }) => (

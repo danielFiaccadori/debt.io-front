@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { loginUser, signUpUser, getUserData, getBalance, getDebts, listDebts } from '../api/api';
+import { loginUser, signUpUser, getUserData, getBalance, getDebts, listDebts, createDebt } from '../api/api';
 import * as SecureStore from 'expo-secure-store';
 
 const AuthContext = createContext({});
@@ -122,6 +122,18 @@ export function AuthProvider({ children }) {
     }
   }
 
+  async function createNewDebt(userId, debtName, value, paymentMethod, category, expiryDate, isRecorrent) {
+    setIsLoading(true);
+    try {
+      const data = await createDebt(userId, debtName, value, paymentMethod, category, expiryDate, isRecorrent);
+      return data;
+    } catch (error) {
+      console.error('Create debt error(Auth)', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   async function signUp(name, surname, email, password, cpf, phone, birthDate, monthlyIncome) {
     setIsLoading(true);
     try {
@@ -140,7 +152,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ token, isLoading, login, signOut, signUp, getLoggedUserData, getUserBalance, userData, userBalance, getUserDebts, userDebts, getUserDebtList, userDebtList }}>
+    <AuthContext.Provider value={{ token, userId, isLoading, login, signOut, signUp, getLoggedUserData, getUserBalance, userData, userBalance, getUserDebts, userDebts, getUserDebtList, userDebtList, createNewDebt }}>
       {children}
     </AuthContext.Provider>
   );

@@ -17,7 +17,51 @@ api.interceptors.request.use(async (config) => {
   return Promise.reject(error);
 });
 
-export const listDebts = async(id) => {
+export const createDebt = async (
+  usuarioId,
+  nomeCompra,
+  valor,
+  tipoPagamento,
+  categoria,
+  dataVencimento,
+  contaRecorrente
+) => {
+  try {
+    const [dia, mes, ano] = dataVencimento.split('/');
+
+    const dataFormatada = `${ano}-${mes}-${dia}`;
+
+    const valorLimpo = parseFloat(
+      valor.replace(/[R$\s.]/g, '').replace(',', '.')
+    );
+
+    const payload = {
+      usuarioId,
+      nomeCompra,
+      valor: valorLimpo,
+      tipoPagamento,
+      categoria,
+      dataVencimento: dataFormatada,
+      contaRecorrente
+    };
+
+    const response = await api.post('/api/v1/contas/criar', payload);
+
+    return response.data.result;
+  } catch (error) {
+    console.error('Create debt error(api): ', error);
+
+    if (error.response?.data?.validations) {
+      for (const err of error.response.data.validations) {
+        console.warn(`${err.field}: ${err.message}`);
+      }
+    }
+
+    return null;
+  }
+}
+
+export const listDebts = async (id) => {
   try {
     const response = await api.get(`/api/v1/contas/listar/usuario/${id}`);
     console.log('Debt list: ', response.data);
@@ -80,7 +124,6 @@ export const loginUser = async (email, password) => {
     };
   }
 };
-
 
 export const signUpUser = async (
   nome,
