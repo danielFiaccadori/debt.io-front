@@ -1,5 +1,6 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
+import emmiter from '../utils/EventEmitter';
 
 const API_URL = 'http://192.168.1.3:8080'
 
@@ -16,6 +17,19 @@ api.interceptors.request.use(async (config) => {
 }, (error) => {
   return Promise.reject(error);
 });
+
+api.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  async (error) => {
+    if (error.response?.status === 401) {
+      console.warn('Token expirado ou inválido. Executando logout automático...');
+      emmiter.emit('unauthorized');
+    }
+    return Promise.reject(error);
+  }
+);
 
 export const createDebt = async (
   usuarioId,

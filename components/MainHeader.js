@@ -55,8 +55,10 @@ const styles = StyleSheet.create({
     container: {
         justifyContent: 'center',
         paddingHorizontal: 20,
-        paddingVertical: 20,
-        paddingBottom: 40,
+        paddingVertical: 10,
+        borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 20,
+        paddingBottom: 30,
         backgroundColor: '#183D3D'
     },
     greetingsContainer: {

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { loginUser, signUpUser, getUserData, getBalance, getDebts, listDebts, createDebt } from '../api/api';
 import * as SecureStore from 'expo-secure-store';
+import emmiter from '../utils/EventEmitter';
 
 const AuthContext = createContext({});
 
@@ -28,6 +29,29 @@ export function AuthProvider({ children }) {
       setIsLoading(false);
     };
     loadStorageData();
+  }, []);
+
+  useEffect(() => {
+    const listener = () => {
+      console.log('Token expirado. Fazendo logout...');
+      signOut();
+    };
+
+    emmiter.on('unauthorized', listener);
+
+    return () => {
+      emmiter.off('unauthorized', listener);
+    };
+  }, []);
+
+  useEffect(() => {
+    const autoLogOut = async () => {
+      const savedToken = await SecureStore.getItemAsync('token');
+      if (!savedToken) {
+        signOut();
+      }
+    };
+    autoLogOut();
   }, []);
 
   async function getUserDebtList() {
@@ -148,7 +172,13 @@ export function AuthProvider({ children }) {
 
   async function signOut() {
     setToken(null);
+    setUserId(null);
+    setUserData(null);
+    setUserBalance(null);
+    setUserDebts(null);
+    setUserDebtList(null);
     await SecureStore.deleteItemAsync('token');
+    await SecureStore.deleteItemAsync('userId');
   }
 
   return (

@@ -15,6 +15,7 @@ import LoginScreen from './screens/LoginScreen';
 import SplashScreen from './screens/SplashScreen';
 import HomeScreen from './screens/HomeScreen';
 import DebtsScreen from './screens/DebtsScreen';
+import ProfileScreen from './screens/ProfileScreen';
 
 function HomeStack() {
   return (
@@ -31,7 +32,7 @@ const CustomTabBarBackground = () => (
   <BlurView
     experimentalBlurMethod='dimezisBlurView'
     tint='systemChromeMaterialDark'
-    intensity={80}
+    intensity={100}
     style={{
       ...StyleSheet.absoluteFillObject,
       overflow: 'hidden',
@@ -92,7 +93,7 @@ function HomeTabs() {
       <Tab.Screen name="Home" component={HomeStack} />
       <Tab.Screen name="Wallet" component={DebtsScreen} />
       <Tab.Screen name="Expenses" component={HomeStack} />
-      <Tab.Screen name="Profile" component={HomeStack} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }

@@ -7,9 +7,13 @@ import { AnimatedCircularProgress } from "react-native-circular-progress";
 import { Dimensions } from "react-native";
 import LoginInputForm from "./InputForm";
 import { Masks } from "react-native-mask-input";
+import { Ionicons } from "@expo/vector-icons";
+import LoginAnimation from './LoginAnimation';
+import LargeButton from './LargeButton';
+import { parseISO, compareDesc } from 'date-fns';
 
 function formatCurrencyShort(value) {
-  const number = typeof value === 'bigint' ? Number(value) : value;
+  const number = typeof value === 'number' && !isNaN(value) ? value : 0;
 
   if (number >= 1_000_000) {
     return `R$ ${(number / 1_000_000).toFixed(1)}M`;
@@ -37,16 +41,19 @@ const chartConfig = {
 };
 
 export const BalanceProgressCircle = () => {
-  const { userBalance = 0, userDebts = 0 } = useAuth();
+  const { token, userBalance, userDebts } = useAuth();
 
-  const total = userBalance;
-  const spent = userDebts;
+  if (!token) return (
+    <Text>Ops</Text>
+  );
+
+  const total = typeof userBalance === 'number' ? userBalance : 0;
+  const spent = typeof userDebts === 'number' ? userDebts : 0;
   const remaining = total - spent;
   const fill = total === 0 ? 0 : (remaining / total) * 100;
 
   return (
     <View style={styles.balanceContainer}>
-      <Text style={styles.balanceSubMargin}>Relação desse mês</Text>
       <AnimatedCircularProgress
         size={Dimensions.get('window').width - 120}
         width={30}
@@ -59,8 +66,10 @@ export const BalanceProgressCircle = () => {
       >
         {(fill) => (
           <>
-            <Text style={styles.value}>{remaining.toFixed(2)}</Text>
-            <Text style={styles.label}>DISPONÍVEL</Text>
+            <Text style={styles.value}>
+              {Number.isFinite(remaining) ? remaining.toFixed(2) : 'R$ 0,00'}
+            </Text>
+            <Text style={styles.label}>SEUS GASTOS</Text>
           </>
         )}
       </AnimatedCircularProgress>
@@ -68,7 +77,7 @@ export const BalanceProgressCircle = () => {
   );
 };
 
-export const LastDebts = () => {
+export const AllDebts = () => {
   const { getUserDebtList, userDebtList } = useAuth();
 
   useEffect(() => {
@@ -91,12 +100,67 @@ export const LastDebts = () => {
   );
 
   return (
+    <View style={styles.allDebtsContainer}>
+      <Text style={styles.lastDebtsHeader}>Suas contas</Text>
+      <FlatList
+        data={lastThreeDebts}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={renderItem}
+        ListEmptyComponent={
+          <View style={{ alignItems: 'center', justifyContent: 'center', height: 300 }}>
+            <Text style={{ color: 'white', fontFamily: 'Inter_700Bold', fontSize: 12 }}>Parece que você ainda não possui contas!</Text>
+            <Text style={{ color: 'white', fontFamily: 'Inter_400Regular', fontSize: 10 }}>Você pode adicionar uma nova em "Nova Conta"</Text>
+          </View>
+        }
+      />
+    </View>
+  );
+
+}
+
+export const LastDebts = () => {
+  const { getUserDebtList, userDebtList } = useAuth();
+
+  useEffect(() => {
+    if (!userDebtList) {
+      getUserDebtList();
+    }
+  }, [userDebtList]);
+
+  const lastThreeDebts = Array.isArray(userDebtList)
+    ? [...userDebtList]
+      .sort((a, b) =>
+        new Date(b.dataCriacao).getTime() - new Date(a.dataCriacao).getTime()
+      )
+      .slice(0, 3)
+    : [];
+
+  const renderItem = ({ item }) => (
+    <View style={styles.debtItem}>
+      <Text style={styles.name}>{item.nomeCompra}</Text>
+      <Text style={styles.valor}>R$ {item.valor.toFixed(2)}</Text>
+      <Text style={styles.data}>Vencimento: {item.dataVencimento}</Text>
+      <Text style={styles.categoria}>Categoria: {item.categoria}</Text>
+    </View>
+  );
+
+  return (
     <View style={styles.lastDebtsContainer}>
       <Text style={styles.lastDebtsHeader}>Atividade</Text>
       <FlatList
         data={lastThreeDebts}
         keyExtractor={(item, index) => index.toString()}
         renderItem={renderItem}
+        ListEmptyComponent={
+          <View style={{ alignItems: 'center', justifyContent: 'center', height: 300 }}>
+            <Text style={{ color: 'white', fontFamily: 'Inter_700Bold', fontSize: 12 }}>
+              Parece que você ainda não possui contas!
+            </Text>
+            <Text style={{ color: 'white', fontFamily: 'Inter_400Regular', fontSize: 10 }}>
+              Você pode adicionar uma nova em "Nova Conta"
+            </Text>
+          </View>
+        }
       />
     </View>
   );
@@ -112,36 +176,51 @@ export const CanWasteCard = () => {
         value={value}
         onChangeText={setValue}
         keyboardType="numeric"
-        style="light"
+        style="dark"
         mask={Masks.BRL_CURRENCY}
       />
+      <LargeButton placeholder={"Posso gastar?"}></LargeButton>
     </View>
   );
 }
 
 export const BalanceCard = () => {
-  const { getUserBalance, userBalance, getUserDebts, userDebts } = useAuth();
+  const { token, getUserBalance, userBalance = 0, getUserDebts, userDebts = 0 } = useAuth();
 
   useEffect(() => {
-    getUserBalance();
-    getUserDebts();
-  }, []);
+    if (token) {
+      getUserBalance();
+      getUserDebts();
+    }
+  }, [token]);
 
-  function total() {
-    return userBalance - userDebts;
-  }
+  if (!token) return (
+    <Text>Ops</Text>
+  );
+
+  const totalBalance = userBalance - userDebts;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.balanceSub}>Você pode gastar até</Text>
-      <Text style={styles.balanceText}>
-        {userBalance != null
-          ? formatCurrencyShort(total())
-          : 'Calculando...'}
-      </Text>
+      <Text style={styles.totalLabel}>Você pode gastar até</Text>
+      <Text style={styles.totalBalance}>{formatCurrencyShort(totalBalance)}</Text>
+
+      <View style={styles.cardsContainer}>
+        <View style={[styles.card, { backgroundColor: '#304FFE' }]}>
+          <Ionicons name="arrow-down-circle" size={20} color="white" style={styles.icon} />
+          <Text style={styles.cardTitle}>Entradas</Text>
+          <Text style={styles.cardValue}>{formatCurrencyShort(userBalance)}</Text>
+        </View>
+
+        <View style={[styles.card, { backgroundColor: '#D32F2F' }]}>
+          <Ionicons name="arrow-up-circle" size={20} color="white" style={styles.icon} />
+          <Text style={styles.cardTitle}>Saídas</Text>
+          <Text style={styles.cardValue}>{formatCurrencyShort(userDebts)}</Text>
+        </View>
+      </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -149,32 +228,96 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     paddingHorizontal: 20,
     borderWidth: 0.75,
-    borderColor: 'rgba(32, 83, 83, 0.73)',
+    borderColor: 'rgba(32, 83, 83, 0.1)',
     paddingVertical: 20,
-    backgroundColor: 'rgba(24, 61, 61, 0.5)',
+    backgroundColor: 'rgba(24, 61, 61, 0.1)',
     borderTopLeftRadius: 20,
+    borderRadius: 5,
     borderTopRightRadius: 20,
     marginVertical: 10,
+  },
+  totalLabel: {
+    fontSize: 16,
+    color: '#fff',
+    fontFamily: 'Inter_400Regular',
+    marginBottom: 5,
+  },
+
+  totalBalance: {
+    fontSize: 40,
+    fontFamily: 'Inter_700Bold',
+    color: '#fff',
+    marginBottom: 20,
+  },
+
+  cardsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 0,
+    height: 100,
+    width: '100%',
+  },
+
+  card: {
+    flex: 1,
+    padding: 20,
+    borderRadius: 15,
+    marginHorizontal: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+
+  cardTitle: {
+    color: '#fff',
+    fontSize: 13,
+    fontFamily: 'Inter_400Regular',
+    marginTop: 5,
+  },
+
+  cardValue: {
+    color: '#fff',
+    fontSize: 18,
+    fontFamily: 'Inter_700Bold',
+    marginTop: 2,
+  },
+
+  icon: {
+    marginBottom: 5,
   },
   containerMiddle: {
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 0.75,
-    borderColor: 'rgba(32, 83, 83, 0.73)',
-    paddingVertical: 30,
-    backgroundColor: 'rgba(24, 61, 61, 0.5)',
+    borderColor: 'rgba(32, 83, 83, 0.1)',
+    paddingVertical: 50,
+    borderRadius: 5,
+    backgroundColor: 'rgba(24, 61, 61, 0.1)',
     marginVertical: 10,
+    marginBottom: 120
+  },
+  allDebtsContainer: {
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    borderWidth: 0.75,
+    borderColor: 'rgba(32, 83, 83, 0.1)',
+    paddingVertical: 20,
+    marginBottom: 150,
+    backgroundColor: 'rgba(24, 61, 61, 0.1)',
+    borderRadius: 5,
   },
   lastDebtsContainer: {
     justifyContent: 'center',
     paddingHorizontal: 20,
     borderWidth: 0.75,
-    borderColor: 'rgba(32, 83, 83, 0.73)',
+    borderColor: 'rgba(32, 83, 83, 0.1)',
     paddingVertical: 20,
-    backgroundColor: 'rgba(24, 61, 61, 0.5)',
-    borderRadius: 20,
-    marginVertical: 10,
-    height: 420,
+    backgroundColor: 'rgba(24, 61, 61, 0.1)',
+    borderRadius: 5,
   },
   lastDebtsHeader: {
     fontSize: 17.5,
@@ -196,7 +339,7 @@ const styles = StyleSheet.create({
   // Items list styles
   debtItem: {
     width: '100%',
-    backgroundColor: 'rgba(22, 73, 73, 0.38)',
+    backgroundColor: 'rgba(22, 73, 73, 0.1)',
     padding: 15,
     borderRadius: 3,
     borderTopRightRadius: 10,
@@ -240,14 +383,13 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter_400Regular',
   },
   balanceContainer: {
-    padding: 30,
+    borderRadius: 5,
     justifyContent: 'center',
     borderWidth: 0.75,
-    borderColor: 'rgba(32, 83, 83, 0.73)',
+    borderColor: 'rgba(32, 83, 83, 0.1)',
     alignItems: 'center',
-    backgroundColor: 'rgba(24, 61, 61, 0.5)',
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+    backgroundColor: 'rgba(24, 61, 61, 0.1)',
+    paddingTop: 30,
     marginVertical: 10,
   },
   balanceSubMargin: {

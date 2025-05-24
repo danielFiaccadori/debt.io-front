@@ -8,17 +8,18 @@ import * as NavigationBar from 'expo-navigation-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ScrollView } from 'react-native-gesture-handler';
 import MainHeader from '../components/MainHeader';
-import { BalanceCard, BalanceProgressCircle, CanWasteCard } from '../components/BalanceCard';
+import { BalanceCard, BalanceProgressCircle, CanWasteCard, LastDebts } from '../components/BalanceCard';
+import Button from '../components/LargeButton';
 
 const HomeScreen = () => {
 
        NavigationBar.setBackgroundColorAsync('#ffffff00');
        NavigationBar.setPositionAsync('absolute');
-
+       
        return (
               <SafeAreaProvider>
                      <LinearGradient
-                            colors={['#0f2626', '#040D12']}
+                            colors={['#040D12', '#040D12']}
                             start={{ x: 0, y: 0 }}
                             end={{ x: 0, y: 1 }}
                             style={styles.gradient}
@@ -33,8 +34,8 @@ const HomeScreen = () => {
                                           </View>
                                           <View style={styles.contentContainer}>
                                                  <BalanceCard />
+                                                 <LastDebts  />
                                                  <CanWasteCard />
-                                                 <BalanceProgressCircle/>
                                           </View>
                                    </ScrollView>
                             </SafeAreaView>
@@ -47,8 +48,8 @@ export default HomeScreen;
 
 const styles = StyleSheet.create({
        gradient: {
-		flex: 1,
-	},
+              flex: 1,
+       },
        container: {
               flex: 1,
        },

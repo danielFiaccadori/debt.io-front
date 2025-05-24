@@ -18,17 +18,20 @@ import LoginInputForm from './InputForm';
 import { PaymentMethodSelector } from './PaymentMethodSelector';
 import { CategoryDropdown } from './CategoryDropdown';
 import { Masks } from 'react-native-mask-input';
+import { BlurView } from 'expo-blur';
 
 export const NewDebtButton = ({ onPress }) => {
   return (
     <TouchableOpacity onPress={onPress} style={styles.newDebtButton}>
-      <View style={styles.row}>
-        <Octicons name="inbox" size={20} color="white" style={styles.icon} />
-        <View>
-          <Text style={styles.newDebtTitle}>Nova Conta</Text>
-          <Text style={styles.newDebtSubtitle}>Crie uma nova conta e a adicione na lista</Text>
+      <BlurView intensity={100} tint='systemChromeMaterialDark' style={styles.blurContainer} experimentalBlurMethod='dimezisBlurView'>
+        <View style={styles.row}>
+          <Octicons name="inbox" size={20} color="white" style={styles.icon} />
+          <View>
+            <Text style={styles.newDebtTitle}>Nova Conta</Text>
+            <Text style={styles.newDebtSubtitle}>Crie uma nova conta e a adicione na lista</Text>
+          </View>
         </View>
-      </View>
+      </BlurView>
     </TouchableOpacity>
   );
 };
@@ -181,41 +184,48 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0)',
     justifyContent: 'center',
   },
+
   modalContainer: {
     height: '100%',
-    alignItems: 'center',
     maxHeight: '100%',
+    alignItems: 'center',
     backgroundColor: '#f9f9fc',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingHorizontal: 25,
-    overflow: 'hidden',
     paddingTop: 20,
+    overflow: 'hidden',
     elevation: 5,
   },
+
   scrollContainer: {
     alignItems: 'center',
     width: 350,
     marginTop: 20,
     paddingBottom: 30,
   },
+
   title: {
     fontSize: 24,
     fontFamily: 'Inter_700Bold',
     color: '#5C8374',
     marginBottom: 5,
   },
+
   subtitle: {
     fontSize: 14,
     fontFamily: 'Inter_400Regular',
     color: '#333',
     marginBottom: 20,
   },
+
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 25,
   },
+
+  // Camadas de fundo (para efeito de profundidade ou blur overlay)
   backLayer1: {
     position: 'absolute',
     top: 0,
@@ -225,6 +235,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#00000015',
     zIndex: -1,
   },
+
   backLayer2: {
     position: 'absolute',
     top: 0,
@@ -234,27 +245,39 @@ const styles = StyleSheet.create({
     backgroundColor: '#00000010',
     zIndex: -2,
   },
+
   newDebtButton: {
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    borderRadius: 20,
+    overflow: 'hidden',
     marginHorizontal: 20,
+    elevation: 10, 
+  },
+
+  blurContainer: {
+    backgroundColor: 'rgba(0, 0, 0, 0)',
     padding: 30,
     borderRadius: 20,
   },
+
   row: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+
   icon: {
     marginRight: 30,
   },
+
   newDebtTitle: {
     fontFamily: 'Inter_700Bold',
     color: 'white',
     fontSize: 15,
   },
+
   newDebtSubtitle: {
     fontFamily: 'Inter_400Regular',
     color: 'white',
     fontSize: 11,
   },
 });
+

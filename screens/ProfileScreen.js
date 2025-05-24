@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+import { React } from 'react';
 import { SafeAreaView, View, Text, StyleSheet } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SplashLargeButton from '../components/LargeButton';
@@ -8,18 +8,19 @@ import * as NavigationBar from 'expo-navigation-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ScrollView } from 'react-native-gesture-handler';
 import MainHeader from '../components/MainHeader';
-import { LastDebts, AllDebts } from '../components/BalanceCard';
-import { NewDebtButton, NewDebtModal } from '../components/NewDebtModal';
+import { BalanceCard, BalanceProgressCircle, CanWasteCard, LastDebts } from '../components/BalanceCard';
+import Button from '../components/LargeButton';
 
-const DebtsScreen = () => {
+const ProfileScreen = () => {
 
        NavigationBar.setBackgroundColorAsync('#ffffff00');
        NavigationBar.setPositionAsync('absolute');
 
-       const [showNewDebtModal, setShowNewDebtModal] = useState(false);
+       const { signOut } = useAuth();
 
-       const handleOpenNewDebtModal = () => setShowNewDebtModal(true);
-       const handleCloseNewDebtModal = () => setShowNewDebtModal(false)
+       const onPress = () => {
+              signOut();
+       }
 
        return (
               <SafeAreaProvider>
@@ -31,31 +32,23 @@ const DebtsScreen = () => {
                      >
                             <SafeAreaView style={styles.container}>
                                    <StatusBar translucent backgroundColor="#183D3D" style="light" />
-
-                                   <View style={styles.headerContainer}>
-                                          <MainHeader />
-                                   </View>
-
                                    <ScrollView
-                                          contentContainerStyle={styles.contentContainer}
-                                          showsVerticalScrollIndicator={false}
-                                   >
-                                          <AllDebts />
+                                          contentContainerStyle={styles.scrollContainer}
+                                          showsVerticalScrollIndicator={false}>
+                                          <View style={styles.headerContainer}>
+                                                 <MainHeader />
+                                          </View>
+                                          <View style={styles.contentContainer}>
+                                                 <Button placeholder="Sair" onPress={onPress} />
+                                          </View>
                                    </ScrollView>
-
-                                   {/* Botão flutuante */}
-                                   <View style={styles.floatingButton}>
-                                          <NewDebtButton onPress={handleOpenNewDebtModal} />
-                                   </View>
-
-                                   <NewDebtModal visible={showNewDebtModal} onClose={handleCloseNewDebtModal} />
                             </SafeAreaView>
                      </LinearGradient>
               </SafeAreaProvider>
        );
 };
 
-export default DebtsScreen;
+export default ProfileScreen;
 
 const styles = StyleSheet.create({
        gradient: {
@@ -64,17 +57,14 @@ const styles = StyleSheet.create({
        container: {
               flex: 1,
        },
+       contentText: {
+              color: 'white',
+              fontSize: 16,
+              marginBottom: 10,
+              fontFamily: 'Inter_400Regular',
+       },
        contentContainer: {
               paddingHorizontal: 20,
-              paddingVertical: 20,
-              paddingBottom: 100,
-       },
-       floatingButton: {
-              position: 'absolute',
-              bottom: 130,
-              left: 0,
-              right: 0,
-              alignItems: 'center',
-              zIndex: 10,
-       },
+              paddingVertical: 20
+       }
 });
