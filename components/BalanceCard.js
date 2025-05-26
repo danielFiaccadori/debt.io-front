@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import React from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
 import { BarChart } from "react-native-chart-kit";
 import { useAuth } from "../contexts/AuthContext";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
@@ -11,6 +11,8 @@ import { Ionicons } from "@expo/vector-icons";
 import LoginAnimation from './LoginAnimation';
 import LargeButton from './LargeButton';
 import { parseISO, compareDesc } from 'date-fns';
+import { Feather } from '@expo/vector-icons';
+import UpdateDebtModal from "./UpdateDebtModal";
 
 function formatCurrencyShort(value) {
   const number = typeof value === 'number' && !isNaN(value) ? value : 0;
@@ -23,22 +25,6 @@ function formatCurrencyShort(value) {
     return `R$ ${number.toFixed(2)}`;
   }
 }
-
-const chartConfig = {
-  backgroundGradientFrom: 'rgb(158, 175, 136)',
-  backgroundGradientTo: 'rgb(158, 175, 136)',
-  decimalPlaces: 2,
-  color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-  style: {
-    borderRadius: 16,
-  },
-  propsForDots: {
-    r: '6',
-    strokeWidth: '2',
-    stroke: '#ffa726',
-  },
-};
 
 export const BalanceProgressCircle = () => {
   const { token, userBalance, userDebts } = useAuth();
@@ -79,6 +65,13 @@ export const BalanceProgressCircle = () => {
 
 export const AllDebts = () => {
   const { getUserDebtList, userDebtList } = useAuth();
+  const [selectedDebt, setSelectedDebt] = useState(null);
+  const [isUpdateModalVisible, setUpdateModalVisible] = useState(false);
+
+  const handleOpenUpdateModal = (debt) => {
+    setSelectedDebt(debt);
+    setUpdateModalVisible(true);
+  };
 
   useEffect(() => {
     if (!userDebtList) {
@@ -92,10 +85,19 @@ export const AllDebts = () => {
 
   const renderItem = ({ item }) => (
     <View style={styles.debtItem}>
-      <Text style={styles.name}>{item.nomeCompra}</Text>
-      <Text style={styles.valor}>R$ {item.valor.toFixed(2)}</Text>
-      <Text style={styles.data}>Vencimento: {item.dataVencimento}</Text>
-      <Text style={styles.categoria}>Categoria: {item.categoria}</Text>
+      <View style={styles.debtRow}>
+
+        <View style={{ flex: 1 }}>
+          <Text style={styles.name}>{item.nomeCompra}</Text>
+          <Text style={styles.valor}>R$ {item.valor.toFixed(2)}</Text>
+          <Text style={styles.data}>Vencimento: {item.dataVencimento}</Text>
+          <Text style={styles.categoria}>Categoria: {item.categoria}</Text>
+        </View>
+
+        <TouchableOpacity onPress={() => handleOpenUpdateModal(item)} style={styles.editButton}>
+          <Feather name="edit" size={20} color="#fff" />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
@@ -112,6 +114,17 @@ export const AllDebts = () => {
             <Text style={{ color: 'white', fontFamily: 'Inter_400Regular', fontSize: 10 }}>Você pode adicionar uma nova em "Nova Conta"</Text>
           </View>
         }
+      />
+      <UpdateDebtModal
+        visible={isUpdateModalVisible}
+        onClose={() => setUpdateModalVisible(false)}
+        debtData={selectedDebt}
+        onSave={(updatedDebt) => {
+          // Aqui você chama sua função de atualização
+          // await updateDebt(updatedDebt);
+          setUpdateModalVisible(false);
+          getUserDebtList();
+        }}
       />
     </View>
   );
@@ -146,7 +159,7 @@ export const LastDebts = () => {
 
   return (
     <View style={styles.lastDebtsContainer}>
-      <Text style={styles.lastDebtsHeader}>Atividade</Text>
+      <Text style={styles.lastDebtsHeader}>Atividade recente</Text>
       <FlatList
         data={lastThreeDebts}
         keyExtractor={(item, index) => index.toString()}
@@ -166,26 +179,23 @@ export const LastDebts = () => {
   );
 };
 
-export const CanWasteCard = () => {
-  const [value, setValue] = useState('');
-
-  return (
-    <View style={styles.containerMiddle}>
-      <LoginInputForm
-        label="Valor"
-        value={value}
-        onChangeText={setValue}
-        keyboardType="numeric"
-        style="dark"
-        mask={Masks.BRL_CURRENCY}
-      />
-      <LargeButton placeholder={"Posso gastar?"}></LargeButton>
-    </View>
-  );
-}
-
 export const BalanceCard = () => {
   const { token, getUserBalance, userBalance = 0, getUserDebts, userDebts = 0 } = useAuth();
+
+  function getTotalDebtsDoMesAtual(debts) {
+    const hoje = new Date();
+    const mesAtual = hoje.getMonth() + 1;
+    const anoAtual = hoje.getFullYear();
+
+    if (!Array.isArray(debts)) return 0;
+
+    return debts
+      .filter((debt) => {
+        const [ano, mes] = debt.dataVencimento.split('-');
+        return parseInt(ano) === anoAtual && parseInt(mes) === mesAtual;
+      })
+      .reduce((total, debt) => total + debt.valor, 0);
+  }
 
   useEffect(() => {
     if (token) {
@@ -198,7 +208,10 @@ export const BalanceCard = () => {
     <Text>Ops</Text>
   );
 
-  const totalBalance = userBalance - userDebts;
+  const totalMonthDebts = getTotalDebtsDoMesAtual(getUserDebts)
+
+  const totalBalance = userBalance - totalMonthDebts;
+  //Balanço total = saldo mensal do usuário( - ou percentual de gasto) - valor total das contas do mês - valor total das metas / prazo - percentual de gastos
 
   return (
     <View style={styles.container}>
@@ -316,6 +329,7 @@ const styles = StyleSheet.create({
     borderWidth: 0.75,
     borderColor: 'rgba(32, 83, 83, 0.1)',
     paddingVertical: 20,
+    marginBottom: 110,
     backgroundColor: 'rgba(24, 61, 61, 0.1)',
     borderRadius: 5,
   },
@@ -397,5 +411,15 @@ const styles = StyleSheet.create({
     marginBottom: 35,
     color: 'white',
     fontFamily: 'Inter_400Regular',
+  },
+  debtRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  editButton: {
+    padding: 8,
+    marginLeft: 10,
+    borderRadius: 8,
   },
 });

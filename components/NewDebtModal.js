@@ -23,7 +23,7 @@ import { BlurView } from 'expo-blur';
 export const NewDebtButton = ({ onPress }) => {
   return (
     <TouchableOpacity onPress={onPress} style={styles.newDebtButton}>
-      <BlurView intensity={100} tint='systemChromeMaterialDark' style={styles.blurContainer} experimentalBlurMethod='dimezisBlurView'>
+      <BlurView intensity={70} tint='systemChromeMaterialDark' style={styles.blurContainer} experimentalBlurMethod='dimezisBlurView'>
         <View style={styles.row}>
           <Octicons name="inbox" size={20} color="white" style={styles.icon} />
           <View>
@@ -42,7 +42,7 @@ export const NewDebtModal = ({ visible, onClose }) => {
   const backLayer1Anim = useState(new Animated.Value(0.85))[0];
   const backLayer2Anim = useState(new Animated.Value(0.90))[0];
 
-  const { createNewDebt, userId, getUserDebtList, getUserData, getUserBalance } = useAuth();
+  const { createNewDebt, userId, getUserDebtList, getUserData, getUserBalance, canUserSpend } = useAuth();
 
   const [debtName, setDebtName] = useState('');
   const [value, setValue] = useState('');

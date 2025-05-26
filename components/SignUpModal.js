@@ -20,6 +20,8 @@ import Button from './LargeButton';
 import StepDotsIndicator from '../components/StepDotsIndicator';
 import { useAuth } from '../contexts/AuthContext';
 import { Masks } from 'react-native-mask-input';
+import * as ImagePicker from 'expo-image-picker';
+import { Image } from 'react-native';
 
 const SignUpModal = ({ visible, onClose }) => {
     const [step, setStep] = useState(1);
@@ -33,10 +35,28 @@ const SignUpModal = ({ visible, onClose }) => {
     const [telefone, setTelefone] = useState('');
     const [dataNascimento, setDataNascimento] = useState('');
     const [rendaMensal, setRendaMensal] = useState('');
+    const [profileImage, setProfileImage] = useState('');
     const { signUp } = useAuth();
 
+    const pickImage = async () => {
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (permissionResult.granted === false) {
+            alert("Você precisa permitir acesso à galeria para adicionar uma foto de perfil");
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            base64: true,
+            quality: 0.5
+        })
+
+        if (!result.canceled && result.assets.length > 0) {
+            setProfileImage(result.assets[0].base64);
+        }
+    }
+
     const handleSignUp = () => {
-        signUp(nome, sobrenome, email, senha, cpf, telefone, dataNascimento, rendaMensal)
+        signUp(nome, sobrenome, email, senha, cpf, telefone, dataNascimento, rendaMensal, profileImage)
     }
 
     const insets = useSafeAreaInsets();
@@ -67,16 +87,16 @@ const SignUpModal = ({ visible, onClose }) => {
 
     useEffect(() => {
         if (visible) {
-          Animated.spring(modalTranslateY, {
-            toValue: 0,
-            useNativeDriver: true,
-            tension: 60,    
-            friction: 50,    
-          }).start();
+            Animated.spring(modalTranslateY, {
+                toValue: 0,
+                useNativeDriver: true,
+                tension: 60,
+                friction: 50,
+            }).start();
         } else {
-          modalTranslateY.setValue(1000);
+            modalTranslateY.setValue(1000);
         }
-      }, [visible]);
+    }, [visible]);
 
     const resetForm = () => {
         setNome('');
@@ -124,16 +144,16 @@ const SignUpModal = ({ visible, onClose }) => {
             case 'CPF':
                 mask = [/\d/, /\d/, /\d/, '.', /\d/, /\d/, /\d/, '.', /\d/, /\d/, /\d/, '-', /\d/, /\d/];
                 break;
-                case 'Telefone':
+            case 'Telefone':
                 mask = ['(', /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/];
                 break;
-                case 'Data de Nascimento':
+            case 'Data de Nascimento':
                 mask = [/\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/, /\d/, /\d/];
                 break;
-                case 'Renda Mensal':
+            case 'Renda Mensal':
                 mask = Masks.BRL_CURRENCY;
                 break;
-                default:
+            default:
                 mask = undefined;
         }
 
@@ -149,26 +169,26 @@ const SignUpModal = ({ visible, onClose }) => {
                 secureTextEntry={isPassword}
             />
         );
-    } 
+    }
 
     const handleNext = () => {
         if (step === 1) {
-          if (!nome || !sobrenome || !telefone || !email) {
-            alert('Por favor, preencha todos os campos da Etapa 1.');
-            return;
-          }
+            if (!nome || !sobrenome || !telefone || !email) {
+                alert('Por favor, preencha todos os campos da Etapa 1.');
+                return;
+            }
         }
-      
+
         if (step === 2) {
-          if (!dataNascimento || !rendaMensal || !cpf) {
-            alert('Por favor, preencha todos os campos da Etapa 2.');
-            return;
-          }
-          handleSignUp();
+            if (!dataNascimento || !rendaMensal || !cpf) {
+                alert('Por favor, preencha todos os campos da Etapa 2.');
+                return;
+            }
+            handleSignUp();
         }
-      
+
         setStep((prev) => prev + 1);
-    };      
+    };
 
     const handleBack = () => setStep((prev) => prev - 1);
 
@@ -202,13 +222,13 @@ const SignUpModal = ({ visible, onClose }) => {
                 />
 
                 <Animated.View
-                style={[
-                    styles.modalContainer,
-                    {
-                    paddingBottom: insets.bottom + 20,
-                    transform: [{ translateY: modalTranslateY }],
-                    },
-                ]}
+                    style={[
+                        styles.modalContainer,
+                        {
+                            paddingBottom: insets.bottom + 20,
+                            transform: [{ translateY: modalTranslateY }],
+                        },
+                    ]}
                 >
                     <ScrollView
                         contentContainerStyle={styles.scrollContainer}
@@ -223,29 +243,48 @@ const SignUpModal = ({ visible, onClose }) => {
                             totalSteps={3}
                         />
 
+                        <TouchableOpacity onPress={pickImage} style={{ marginBottom: 15, alignItems: 'center' }}>
+                            {profileImage ? (
+                                <Image
+                                    source={{ uri: `data:image/jpeg;base64,${profileImage}` }}
+                                    style={{ width: 100, height: 100, borderRadius: 50 }}
+                                />
+                            ) : (
+                                <View style={{
+                                    width: 100,
+                                    height: 100,
+                                    borderRadius: 50,
+                                    backgroundColor: '#ddd',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}>
+                                    <Text>Selecionar Foto</Text>
+                                </View>
+                            )}
+                        </TouchableOpacity>
+
                         {step === 1 && renderStepOne()}
                         {step === 2 && renderStepTwo()}
                         {step === 3 && renderStepThree()}
 
-                        
                     </ScrollView>
                     <View style={styles.buttonContainer}>
-                            {step > 1 && step < 3 && (
-                                <Button onPress={handleBack} placeholder="Voltar"/>
-                            )}
+                        {step > 1 && step < 3 && (
+                            <Button onPress={handleBack} placeholder="Voltar" />
+                        )}
 
-                            {step < 3 && (
-                                <Button onPress={handleNext} placeholder="Próximo"/>
-                            )}
+                        {step < 3 && (
+                            <Button onPress={handleNext} placeholder="Próximo" />
+                        )}
 
-                            {step === 3 && (
-                                <Button onPress={() => {
-                                    onClose();
-                                    resetForm();
-                                }}
+                        {step === 3 && (
+                            <Button onPress={() => {
+                                onClose();
+                                resetForm();
+                            }}
                                 placeholder="Finalizar"
-                                />
-                            )}
+                            />
+                        )}
                     </View>
                 </Animated.View>
             </SafeAreaView>
@@ -279,7 +318,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 24,
-		fontFamily: 'Inter_700Bold',
+        fontFamily: 'Inter_700Bold',
         color: '#5C8374',
         marginBottom: 5
     },
@@ -330,7 +369,7 @@ const styles = StyleSheet.create({
     primaryButtonText: {
         color: '#fff',
         fontSize: 15,
-		fontFamily: 'Inter_700Bold',
+        fontFamily: 'Inter_700Bold',
     },
     secondaryButton: {
         flex: 1,
@@ -352,7 +391,7 @@ const styles = StyleSheet.create({
     },
     confirmationText: {
         marginTop: 20,
-		fontFamily: 'Inter_700Bold',
+        fontFamily: 'Inter_700Bold',
         fontSize: 16,
         color: '#333'
     }

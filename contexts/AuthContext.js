@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { loginUser, signUpUser, getUserData, getBalance, getDebts, listDebts, createDebt } from '../api/api';
+import { loginUser, signUpUser, getUserData, getBalance, getDebts, listDebts, createDebt, canSpend, updateDebt } from '../api/api';
 import * as SecureStore from 'expo-secure-store';
 import emmiter from '../utils/EventEmitter';
 
@@ -53,6 +53,26 @@ export function AuthProvider({ children }) {
     };
     autoLogOut();
   }, []);
+
+  async function updateUserDebt(debtId, debtName, value, paymentType, category, expiryDate, isRecorrent) {
+    try {
+      const userId = await SecureStore.getItemAsync('userId');
+      const response = await updateDebt(userId, debtName, value, paymentType, category, expiryDate, isRecorrent);
+      console.log(response);
+    } catch (error) {
+      console.error('Erro ao atualizar uma Debt: ', error)
+    }
+  }
+
+  async function canUserSpend(value) {
+    try {
+      const savedUserId = await SecureStore.getItemAsync('userId');
+      const response = await canSpend(savedUserId, value);
+      console.log(response);
+    } catch (error) {
+      console.error('Erro ao verificar se usuário pode gastar um valor: ', error)
+    }
+  }
 
   async function getUserDebtList() {
     try {
@@ -109,6 +129,7 @@ export function AuthProvider({ children }) {
 
       const response = await getUserData(userId);
       setUserData(response.result);
+      console.log(response);
 
     } catch (error) {
       console.error('Erro ao obter os dados do usuário: ', error);
@@ -158,10 +179,10 @@ export function AuthProvider({ children }) {
     }
   }
 
-  async function signUp(name, surname, email, password, cpf, phone, birthDate, monthlyIncome) {
+  async function signUp(name, surname, email, password, cpf, phone, birthDate, monthlyIncome, profilePicBase64) {
     setIsLoading(true);
     try {
-      const data = await signUpUser(name, surname, email, password, cpf, phone, birthDate, monthlyIncome);
+      const data = await signUpUser(name, surname, email, password, cpf, phone, birthDate, monthlyIncome, 1, profilePicBase64);
       return data;
     } catch (error) {
       console.error('Sign-up error', error);
@@ -182,7 +203,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ token, userId, isLoading, login, signOut, signUp, getLoggedUserData, getUserBalance, userData, userBalance, getUserDebts, userDebts, getUserDebtList, userDebtList, createNewDebt }}>
+    <AuthContext.Provider value={{ token, userId, isLoading, login, signOut, signUp, getLoggedUserData, updateUserDebt, getUserBalance, userData, userBalance, getUserDebts, userDebts, getUserDebtList, userDebtList, createNewDebt, canUserSpend }}>
       {children}
     </AuthContext.Provider>
   );

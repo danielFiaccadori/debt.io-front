@@ -32,7 +32,7 @@ const CustomTabBarBackground = () => (
   <BlurView
     experimentalBlurMethod='dimezisBlurView'
     tint='systemChromeMaterialDark'
-    intensity={100}
+    intensity={70}
     style={{
       ...StyleSheet.absoluteFillObject,
       overflow: 'hidden',
@@ -70,13 +70,6 @@ function HomeTabs() {
                   <Octicons name={iconName} size={size} color={color} />
                 </View>
               );
-            case 'Expenses':
-              iconName = 'credit-card';
-              return (
-                <View style={focused ? styles.iconContainerActive : styles.iconContainerInactive}>
-                  <Octicons name={iconName} size={size} color={color} />
-                </View>
-              );
             case 'Profile':
               iconName = 'person';
               return (
@@ -92,7 +85,6 @@ function HomeTabs() {
     >
       <Tab.Screen name="Home" component={HomeStack} />
       <Tab.Screen name="Wallet" component={DebtsScreen} />
-      <Tab.Screen name="Expenses" component={HomeStack} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
@@ -146,7 +138,7 @@ const styles = StyleSheet.create({
     elevation: 2,
     overflow: 'hidden',
     bottom: 40,
-    marginHorizontal: 40,
+    marginHorizontal: 70,
     borderWidth: 0,
   },
   tabBarItemStyle: {

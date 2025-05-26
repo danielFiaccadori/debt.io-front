@@ -8,7 +8,7 @@ import * as NavigationBar from 'expo-navigation-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ScrollView } from 'react-native-gesture-handler';
 import MainHeader from '../components/MainHeader';
-import { BalanceCard, BalanceProgressCircle, CanWasteCard, LastDebts } from '../components/BalanceCard';
+import { BalanceCard, BalanceProgressCircle, LastDebts } from '../components/BalanceCard';
 import Button from '../components/LargeButton';
 
 const HomeScreen = () => {
@@ -35,7 +35,6 @@ const HomeScreen = () => {
                                           <View style={styles.contentContainer}>
                                                  <BalanceCard />
                                                  <LastDebts  />
-                                                 <CanWasteCard />
                                           </View>
                                    </ScrollView>
                             </SafeAreaView>

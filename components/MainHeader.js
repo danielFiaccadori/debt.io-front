@@ -33,7 +33,11 @@ const MainHeader = () => {
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Image
                         style={styles.profilePic}
-                        source={require('../assets/debt.io-logo.png')}
+                        source={
+                            userData.fotoPerfilBase64
+                                ? { uri: `data:image/jpeg;base64,${userData.fotoPerfilBase64}` }
+                                : require('../assets/debt.io-logo.png')
+                        }
                     />
                     <View style={{ marginLeft: 10 }}>
                         <Text style={styles.greetingsSub}>Bem-vindo de volta</Text>

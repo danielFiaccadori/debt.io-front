@@ -2,7 +2,7 @@ import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import emmiter from '../utils/EventEmitter';
 
-const API_URL = 'http://192.168.1.3:8080'
+const API_URL = 'http://192.168.1.8:8080'
 
 const api = axios.create({
   baseURL: API_URL
@@ -30,6 +30,74 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+export const canSpend = async (
+  id,
+  valorAlvo
+) => {
+  try {
+    const valorLimpo = parseFloat(
+      valorAlvo.replace(/[R$\s.]/g, '').replace(',', '.')
+    );
+
+    const response = await api.post('api/v1/usuario/verificar-gasto', id, valorLimpo);
+    console.log(response.data.result);
+  } catch (error) {
+    console.error('Can spend error(api): ', error);
+
+    if (error.response?.data?.validations) {
+      for (const err of error.response.data.validations) {
+        console.warn(`${err.field}: ${err.message}`);
+      }
+    }
+
+    return null;
+  }
+}
+
+export const updateDebt = async (
+  id,
+  nomeCompra,
+  valor,
+  tipoPagamento,
+  categoria,
+  dataVencimento,
+  contaRecorrente
+) => {
+  try {
+    const [dia, mes, ano] = dataVencimento.split('/');
+
+    const dataFormatada = `${ano}-${mes}-${dia}`;
+
+    const valorLimpo = parseFloat(
+      valor.replace(/[R$\s.]/g, '').replace(',', '.')
+    );
+
+    const payload = {
+      id,
+      nomeCompra,
+      valor: valorLimpo,
+      tipoPagamento,
+      categoria,
+      dataVencimento: dataFormatada,
+      contaRecorrente
+    };
+
+    const response = await api.put('/api/v1/contas/atualizar', payload);
+
+    return response.data.result;
+  } catch (error) {
+    console.error('Update debt error(api): ', error);
+
+    if (error.response?.data?.validations) {
+      for (const err of error.response.data.validations) {
+        console.warn(`${err.field}: ${err.message}`);
+      }
+    }
+
+    return null;
+  }
+}
 
 export const createDebt = async (
   usuarioId,
@@ -147,7 +215,9 @@ export const signUpUser = async (
   cpf,
   telefone,
   dataNascimento,
-  rendaMensal
+  rendaMensal,
+  percentualGastos,
+  fotoPerfilBase64
 ) => {
   try {
     const cpfNumeros = cpf.replace(/[^\d]/g, '');
@@ -178,10 +248,10 @@ export const signUpUser = async (
       cpf: cpfFormatado,
       telefone: telefoneFormatado,
       dataNascimento: dataFormatada,
-      rendaMensal: rendaLimpa
+      rendaMensal: rendaLimpa,
+      percentualGastos,
+      fotoPerfilBase64
     };
-
-    console.log('Payload final para API:', payload);
 
     const response = await api.post('/api/v1/auth/registrar', payload);
 

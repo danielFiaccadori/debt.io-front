@@ -30,7 +30,7 @@ export const CategoryDropdown = ({ selectedCategory, onSelect }) => {
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
+    width: '87%',
     marginBottom: 20,
     paddingHorizontal: 10,
   },
@@ -43,9 +43,9 @@ const styles = StyleSheet.create({
   },
   pickerWrapper: {
     backgroundColor: '#fff',
-    borderRadius: 10,
-    borderWidth: 0.5,
-    borderColor: '#ccc',
+    borderRadius: 15,
+    borderWidth: 0.25,
+    borderColor: '#d1d3e0',
   },
   picker: {
     height: 50,

@@ -35,7 +35,7 @@ export const PaymentMethodSelector = ({ selected, onSelect }) => {
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
+    width: '90%',
     marginBottom: 20,
   },
   label: {
@@ -53,13 +53,13 @@ const styles = StyleSheet.create({
   option: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#334155',
+    backgroundColor: '#666',
     borderRadius: 15,
     padding: 10,
     margin: 5,
   },
   optionSelected: {
-    backgroundColor: '#475569',
+    backgroundColor: '#999',
   },
   optionText: {
     marginLeft: 8,
