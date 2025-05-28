@@ -105,6 +105,8 @@ export const AllDebts = () => {
     <View style={styles.allDebtsContainer}>
       <Text style={styles.lastDebtsHeader}>Suas contas</Text>
       <FlatList
+        scrollEnabled={false}
+        nestedScrollEnabled={false}
         data={lastThreeDebts}
         keyExtractor={(item, index) => index.toString()}
         renderItem={renderItem}
@@ -120,8 +122,6 @@ export const AllDebts = () => {
         onClose={() => setUpdateModalVisible(false)}
         debtData={selectedDebt}
         onSave={(updatedDebt) => {
-          // Aqui você chama sua função de atualização
-          // await updateDebt(updatedDebt);
           setUpdateModalVisible(false);
           getUserDebtList();
         }}
@@ -161,6 +161,8 @@ export const LastDebts = () => {
     <View style={styles.lastDebtsContainer}>
       <Text style={styles.lastDebtsHeader}>Atividade recente</Text>
       <FlatList
+        scrollEnabled={false}
+        nestedScrollEnabled={false}
         data={lastThreeDebts}
         keyExtractor={(item, index) => index.toString()}
         renderItem={renderItem}

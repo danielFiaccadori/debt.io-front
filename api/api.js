@@ -31,17 +31,21 @@ api.interceptors.response.use(
   }
 );
 
-export const canSpend = async (
-  id,
-  valorAlvo
-) => {
+export const canSpend = async (id, valorAlvo) => {
   try {
     const valorLimpo = parseFloat(
       valorAlvo.replace(/[R$\s.]/g, '').replace(',', '.')
     );
 
-    const response = await api.post('api/v1/usuario/verificar-gasto', id, valorLimpo);
+    const response = await api.get('api/v1/contas/verificar-gasto', {
+      params: {
+        id,
+        valorAlvo: valorLimpo,
+      },
+    });
+
     console.log(response.data.result);
+    return response.data.result;
   } catch (error) {
     console.error('Can spend error(api): ', error);
 
@@ -52,6 +56,55 @@ export const canSpend = async (
     }
 
     return null;
+  }
+};
+
+export const updateUserData = async (
+  id,
+  nome,
+  sobrenome,
+  email,
+  cpf,
+  telefone,
+  fotoPerfilBase64,
+  percentualGastos
+) => {
+  try {
+    const telefoneNumeros = telefone.replace(/[^\d]/g, '');
+
+    const payload = {
+      id,
+      nome,
+      sobrenome,
+      email,
+      cpf,
+      telefone: telefoneNumeros,
+      percentualGastos
+    }
+
+    const payloadUserProfile = {
+      idUsuario: id,
+      fotoPerfilBase64: fotoPerfilBase64
+    }
+
+    console.log('Payload para atualização de usuário: ', payload);
+    console.log('Payload para atualização de perfil: ', payloadUserProfile);
+
+    const response = await api.put('/api/v1/usuario/atualizar', payload);
+    const responseProfile = await api.put('/api/v1/usuario/atualizar-foto', payloadUserProfile);
+
+    var success = response.data.success && responseProfile.data.success;
+    return success;
+
+  } catch (error) {
+    console.error('Error updating user data: ', error);
+
+    if (error.response?.data?.validations) {
+      for (const err of error.response.data.validations) {
+        console.warn(`${err.field}: ${err.message}`);
+      }
+    }
+    return false;
   }
 }
 
@@ -65,7 +118,7 @@ export const updateDebt = async (
   contaRecorrente
 ) => {
   try {
-    const [dia, mes, ano] = dataVencimento.split('/');
+    const [ano, mes, dia] = dataVencimento.split('/');
 
     const dataFormatada = `${ano}-${mes}-${dia}`;
 

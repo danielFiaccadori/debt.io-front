@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { loginUser, signUpUser, getUserData, getBalance, getDebts, listDebts, createDebt, canSpend, updateDebt } from '../api/api';
+import { loginUser, signUpUser, getUserData, getBalance, getDebts, listDebts, createDebt, canSpend, updateDebt, updateUserData } from '../api/api';
 import * as SecureStore from 'expo-secure-store';
 import emmiter from '../utils/EventEmitter';
 
@@ -56,9 +56,8 @@ export function AuthProvider({ children }) {
 
   async function updateUserDebt(debtId, debtName, value, paymentType, category, expiryDate, isRecorrent) {
     try {
-      const userId = await SecureStore.getItemAsync('userId');
-      const response = await updateDebt(userId, debtName, value, paymentType, category, expiryDate, isRecorrent);
-      console.log(response);
+      const response = await updateDebt(debtId, debtName, value, paymentType, category, expiryDate, isRecorrent);
+      console.log('Request: ', response);
     } catch (error) {
       console.error('Erro ao atualizar uma Debt: ', error)
     }
@@ -170,8 +169,12 @@ export function AuthProvider({ children }) {
   async function createNewDebt(userId, debtName, value, paymentMethod, category, expiryDate, isRecorrent) {
     setIsLoading(true);
     try {
-      const data = await createDebt(userId, debtName, value, paymentMethod, category, expiryDate, isRecorrent);
-      return data;
+      const canSpend = await canUserSpend(value);
+      if (canSpend) {
+        const data = await createDebt(userId, debtName, value, paymentMethod, category, expiryDate, isRecorrent);
+        return data;
+      }
+      return canSpend;
     } catch (error) {
       console.error('Create debt error(Auth)', error);
     } finally {
@@ -191,19 +194,27 @@ export function AuthProvider({ children }) {
     }
   }
 
+  async function updateUserProfile(id, name, surname, email, cpf, phone, profilePicture, wastePercent) {
+    setIsLoading(true);
+    try {
+      const data = await updateUserData(id, name, surname, email, cpf, phone, profilePicture, wastePercent);
+      console.log("Tried to update user profile: ", data)
+      return data;
+    } catch (error) {
+      console.error('Error updating user profile:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+
   async function signOut() {
-    setToken(null);
-    setUserId(null);
-    setUserData(null);
-    setUserBalance(null);
-    setUserDebts(null);
-    setUserDebtList(null);
     await SecureStore.deleteItemAsync('token');
     await SecureStore.deleteItemAsync('userId');
   }
 
   return (
-    <AuthContext.Provider value={{ token, userId, isLoading, login, signOut, signUp, getLoggedUserData, updateUserDebt, getUserBalance, userData, userBalance, getUserDebts, userDebts, getUserDebtList, userDebtList, createNewDebt, canUserSpend }}>
+    <AuthContext.Provider value={{ token, userId, isLoading, login, signOut, updateUserProfile, signUp, getLoggedUserData, updateUserDebt, getUserBalance, userData, userBalance, getUserDebts, userDebts, getUserDebtList, userDebtList, createNewDebt, canUserSpend }}>
       {children}
     </AuthContext.Provider>
   );

@@ -155,7 +155,7 @@ export const NewDebtModal = ({ visible, onClose }) => {
             <Button onPress={onClose} placeholder="Cancelar" />
             <Button
               onPress={async () => {
-                await createNewDebt(
+                const result = await createNewDebt(
                   userId,
                   debtName,
                   value,
@@ -164,6 +164,12 @@ export const NewDebtModal = ({ visible, onClose }) => {
                   expiryDate,
                   isRecorrent
                 );
+
+                if (!result) {
+                  alert("Você não pode adicionar essa conta. Ela excede seu limite disponível.");
+                  return;
+                }
+
                 onClose();
                 await getUserDebtList();
                 await getUserData();
@@ -232,7 +238,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#00000015',
     zIndex: -1,
   },
 
@@ -242,7 +247,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#00000010',
     zIndex: -2,
   },
 
@@ -250,7 +254,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     overflow: 'hidden',
     marginHorizontal: 20,
-    elevation: 10, 
+    elevation: 10,
   },
 
   blurContainer: {
