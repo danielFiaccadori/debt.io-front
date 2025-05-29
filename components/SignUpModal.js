@@ -114,6 +114,27 @@ const SignUpModal = ({ visible, onClose }) => {
     const renderStepOne = () => (
         <>
             <Text style={styles.stepTitle}>Dados Pessoais</Text>
+
+            <TouchableOpacity onPress={pickImage} style={{ marginBottom: 15, alignItems: 'center' }}>
+                {profileImage ? (
+                    <Image
+                        source={{ uri: `data:image/jpeg;base64,${profileImage}` }}
+                        style={{ width: 100, height: 100, borderRadius: 50 }}
+                    />
+                ) : (
+                    <View style={{
+                        width: 100,
+                        height: 100,
+                        borderRadius: 50,
+                        backgroundColor: '#ddd',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                        <Text>Selecionar Foto</Text>
+                    </View>
+                )}
+            </TouchableOpacity>
+
             {renderField('Nome', nome, setNome)}
             {renderField('Sobrenome', sobrenome, setSobrenome)}
             {renderField('Telefone', telefone, setTelefone, 'phone-pad')}
@@ -121,6 +142,7 @@ const SignUpModal = ({ visible, onClose }) => {
             {renderField('Senha de acesso', senha, setSenha, 'default', true)}
         </>
     );
+
 
     const renderStepTwo = () => (
         <>
@@ -135,6 +157,7 @@ const SignUpModal = ({ visible, onClose }) => {
         <View style={styles.confirmationContainer}>
             <LoginAnimation source={require('../assets/animations/success.json')} loop={false} />
             <Text style={styles.confirmationText}>Cadastro realizado com sucesso!</Text>
+            <Text style={styles.confirmationTextSub}>Confirme o seu cadastro através do seu e-mail</Text>
         </View>
     );
 
@@ -242,26 +265,6 @@ const SignUpModal = ({ visible, onClose }) => {
                             currentStep={step}
                             totalSteps={3}
                         />
-
-                        <TouchableOpacity onPress={pickImage} style={{ marginBottom: 15, alignItems: 'center' }}>
-                            {profileImage ? (
-                                <Image
-                                    source={{ uri: `data:image/jpeg;base64,${profileImage}` }}
-                                    style={{ width: 100, height: 100, borderRadius: 50 }}
-                                />
-                            ) : (
-                                <View style={{
-                                    width: 100,
-                                    height: 100,
-                                    borderRadius: 50,
-                                    backgroundColor: '#ddd',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}>
-                                    <Text>Selecionar Foto</Text>
-                                </View>
-                            )}
-                        </TouchableOpacity>
 
                         {step === 1 && renderStepOne()}
                         {step === 2 && renderStepTwo()}
@@ -393,6 +396,12 @@ const styles = StyleSheet.create({
         marginTop: 20,
         fontFamily: 'Inter_700Bold',
         fontSize: 16,
+        color: '#333'
+    },
+    confirmationTextSub: {
+        marginTop: 5,
+        fontFamily: 'Inter_400Regular',
+        fontSize: 13,
         color: '#333'
     }
 });

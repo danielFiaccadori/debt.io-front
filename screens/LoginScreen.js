@@ -87,7 +87,7 @@ const LoginScreen = ({ navigation }) => {
 		<SafeAreaProvider>
 			<SafeAreaView style={styles.container}>
 				<View style={styles.topMessageContainer}>
-					<LoginAnimation source={require('../assets/animations/login_animation.json')} loop={false}/>
+					<LoginAnimation source={require('../assets/animations/login_animation.json')} loop={false} size={300}/>
 					{errorMessage ? (
 						<Animated.View style={[styles.errorMessageContainer, { opacity: errorOpacity }]}>
 						<Text style={styles.errorMessage}>{errorMessage}</Text>
