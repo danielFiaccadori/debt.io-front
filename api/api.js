@@ -87,9 +87,6 @@ export const updateUserData = async (
       fotoPerfilBase64: fotoPerfilBase64
     }
 
-    console.log('Payload para atualização de usuário: ', payload);
-    console.log('Payload para atualização de perfil: ', payloadUserProfile);
-
     const response = await api.put('/api/v1/usuario/atualizar', payload);
     const responseProfile = await api.put('/api/v1/usuario/atualizar-foto', payloadUserProfile);
 
@@ -118,9 +115,12 @@ export const updateDebt = async (
   contaRecorrente
 ) => {
   try {
-    const [ano, mes, dia] = dataVencimento.split('/');
+    let dataFormatada = dataVencimento;
 
-    const dataFormatada = `${ano}-${mes}-${dia}`;
+    if (dataVencimento.includes('/')) {
+      const [dia, mes, ano] = dataVencimento.split('/');
+      dataFormatada = `${ano}-${mes}-${dia}`;
+    }
 
     const valorLimpo = parseFloat(
       valor.replace(/[R$\s.]/g, '').replace(',', '.')
@@ -137,7 +137,6 @@ export const updateDebt = async (
     };
 
     const response = await api.put('/api/v1/contas/atualizar', payload);
-
     return response.data.result;
   } catch (error) {
     console.error('Update debt error(api): ', error);
@@ -150,7 +149,8 @@ export const updateDebt = async (
 
     return null;
   }
-}
+};
+
 
 export const createDebt = async (
   usuarioId,
@@ -259,6 +259,21 @@ export const loginUser = async (email, password) => {
     };
   }
 };
+
+export const getWastePercent = async (id) => {
+  try {
+    const getUser = await api.get(`/api/v1/usuario/id/${id}`);
+
+    const email = getUser.data.result.email;
+
+    const wastePercent = await api.get(`/api/v1/usuario/email/${email}`);
+
+    return wastePercent.data.result.percentualGastos;
+  } catch (error) {
+    console.error('Error obtaining user data by email:', error);
+    return null;
+  }
+}
 
 export const signUpUser = async (
   nome,

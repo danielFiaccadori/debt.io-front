@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { loginUser, signUpUser, getUserData, getBalance, getDebts, listDebts, createDebt, canSpend, updateDebt, updateUserData } from '../api/api';
+import { loginUser, signUpUser, getUserData, getBalance, getDebts, listDebts, createDebt, canSpend, updateDebt, updateUserData, getWastePercent } from '../api/api';
 import * as SecureStore from 'expo-secure-store';
 import emmiter from '../utils/EventEmitter';
 
@@ -104,6 +104,21 @@ export function AuthProvider({ children }) {
     }
   }
 
+  async function getUserWastePercent() {
+    try {
+      if (!userId) {
+        console.warn('User ID não encontrado.');
+        return null;
+      }
+      const response = await getWastePercent(userId);
+      console.log("O percentual é: ");
+      return response;
+
+    } catch (error) {
+      console.error('Erro ao obter dados do percentual de gastos do usuário: ', error);
+    }
+  }
+
   async function getUserBalance() {
     try {
       if (!userId) {
@@ -112,7 +127,14 @@ export function AuthProvider({ children }) {
       }
 
       const response = await getBalance(userId);
-      setUserBalance(response.result);
+      const wastePercent = await getUserWastePercent();
+
+      console.log("Saldo é: ", response);
+      console.log("O percentual de gasto é: ", wastePercent);
+
+      const total = response.result * wastePercent;
+
+      setUserBalance(total);
 
     } catch (error) {
       console.error('Erro ao obter dados das Debts do usuário: ', error);
@@ -166,17 +188,66 @@ export function AuthProvider({ children }) {
     }
   }
 
+  function getTotalDebtsDoMesAtual(debts) {
+    const hoje = new Date();
+    const mesAtual = hoje.getMonth();
+    const anoAtual = hoje.getFullYear();
+
+    if (!Array.isArray(debts)) return 0;
+
+    return debts
+      .filter((debt) => {
+        if (!debt?.dataVencimento) return false;
+        const data = new Date(debt.dataVencimento);
+        return (
+          data.getFullYear() === anoAtual &&
+          data.getMonth() === mesAtual
+        );
+      })
+      .reduce((total, debt) => total + (Number(debt.valor) || 0), 0);
+  }
+
+
   async function createNewDebt(userId, debtName, value, paymentMethod, category, expiryDate, isRecorrent) {
     setIsLoading(true);
     try {
-      const canSpend = await canUserSpend(value);
-      if (canSpend) {
-        const data = await createDebt(userId, debtName, value, paymentMethod, category, expiryDate, isRecorrent);
-        return data;
+      await getUserBalance();
+      await getUserDebts();
+
+      if (userBalance === null || userDebts === null) {
+        console.warn("Dados financeiros incompletos.");
+        return false;
       }
-      return canSpend;
+
+      const totalDebtsDoMes = getTotalDebtsDoMesAtual(userDebts);
+
+      const valorNumerico = parseFloat(
+        value.replace(/[R$\s.]/g, '').replace(',', '.')
+      );
+
+      if (isNaN(valorNumerico)) {
+        console.warn('Valor da nova dívida inválido:', value);
+        return false;
+      }
+
+      const totalComNova = totalDebtsDoMes + valorNumerico;
+
+      console.log('Total do mês:', totalDebtsDoMes);
+      console.log('Valor da nova dívida:', valorNumerico);
+      console.log('Total com nova:', totalComNova);
+      console.log('Limite permitido (userBalance):', userBalance);
+
+      if (totalComNova > userBalance) {
+        console.warn("Nova dívida excede o limite permitido para este mês.");
+        return false;
+      }
+
+      const data = await createDebt(userId, debtName, value, paymentMethod, category, expiryDate, isRecorrent);
+      return data;
+
     } catch (error) {
-      console.error('Create debt error(Auth)', error);
+      console.error('Erro ao criar dívida:', error);
+      return false;
     } finally {
       setIsLoading(false);
     }
@@ -211,10 +282,13 @@ export function AuthProvider({ children }) {
   async function signOut() {
     await SecureStore.deleteItemAsync('token');
     await SecureStore.deleteItemAsync('userId');
+    setToken(null);
+    setUserId(null);
+    setUserData(null);
   }
 
   return (
-    <AuthContext.Provider value={{ token, userId, isLoading, login, signOut, updateUserProfile, signUp, getLoggedUserData, updateUserDebt, getUserBalance, userData, userBalance, getUserDebts, userDebts, getUserDebtList, userDebtList, createNewDebt, canUserSpend }}>
+    <AuthContext.Provider value={{ token, userId, isLoading, getUserWastePercent, login, signOut, updateUserProfile, signUp, getLoggedUserData, updateUserDebt, getUserBalance, userData, userBalance, getUserDebts, userDebts, getUserDebtList, userDebtList, createNewDebt, canUserSpend }}>
       {children}
     </AuthContext.Provider>
   );

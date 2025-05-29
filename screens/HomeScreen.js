@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { React } from 'react';
+import { React, useCallback } from 'react';
 import { SafeAreaView, View, Text, StyleSheet } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SplashLargeButton from '../components/LargeButton';
@@ -10,12 +10,22 @@ import { ScrollView } from 'react-native-gesture-handler';
 import MainHeader from '../components/MainHeader';
 import { BalanceCard, BalanceProgressCircle, LastDebts } from '../components/BalanceCard';
 import Button from '../components/LargeButton';
+import { useFocusEffect } from '@react-navigation/native';
 
 const HomeScreen = () => {
 
+       const { getUserBalance, getUserDebts } = useAuth();
+
+       useFocusEffect(
+              useCallback(() => {
+                     getUserBalance();
+                     getUserDebts();
+              }, [])
+       );
+
        NavigationBar.setBackgroundColorAsync('#ffffff00');
        NavigationBar.setPositionAsync('absolute');
-       
+
        return (
               <SafeAreaProvider>
                      <LinearGradient
@@ -34,7 +44,7 @@ const HomeScreen = () => {
                                           </View>
                                           <View style={styles.contentContainer}>
                                                  <BalanceCard />
-                                                 <LastDebts  />
+                                                 <LastDebts />
                                           </View>
                                    </ScrollView>
                             </SafeAreaView>

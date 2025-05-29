@@ -12,6 +12,7 @@ import LoginAnimation from './LoginAnimation';
 import LargeButton from './LargeButton';
 import { parseISO, compareDesc } from 'date-fns';
 import { Feather } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import UpdateDebtModal from "./UpdateDebtModal";
 
 function formatCurrencyShort(value) {
@@ -72,6 +73,12 @@ export const AllDebts = () => {
     setSelectedDebt(debt);
     setUpdateModalVisible(true);
   };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getUserDebtList();
+    }, [])
+  );
 
   useEffect(() => {
     if (!userDebtList) {
@@ -210,7 +217,7 @@ export const BalanceCard = () => {
     <Text>Ops</Text>
   );
 
-  const totalMonthDebts = getTotalDebtsDoMesAtual(getUserDebts)
+  const totalMonthDebts = getTotalDebtsDoMesAtual(userDebts)
 
   const totalBalance = userBalance - totalMonthDebts;
   //Balanço total = saldo mensal do usuário( - ou percentual de gasto) - valor total das contas do mês - valor total das metas / prazo - percentual de gastos

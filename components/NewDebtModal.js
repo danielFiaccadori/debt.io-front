@@ -19,6 +19,7 @@ import { PaymentMethodSelector } from './PaymentMethodSelector';
 import { CategoryDropdown } from './CategoryDropdown';
 import { Masks } from 'react-native-mask-input';
 import { BlurView } from 'expo-blur';
+import LoginAnimation from './LoginAnimation';
 
 export const NewDebtButton = ({ onPress }) => {
   return (
@@ -36,6 +37,68 @@ export const NewDebtButton = ({ onPress }) => {
   );
 };
 
+const InlineConfirmPopup = ({ visible, onCancel, onConfirm }) => {
+  const shakeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (visible) {
+      shakeAnim.setValue(0);
+      Animated.sequence([
+        Animated.timing(shakeAnim, {
+          toValue: 10,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnim, {
+          toValue: -10,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnim, {
+          toValue: 6,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnim, {
+          toValue: -6,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnim, {
+          toValue: 0,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [visible]);
+
+  if (!visible) return null;
+
+  return (
+    <View style={inlineConfirmStyles.overlay}>
+      <Animated.View
+        style={[
+          { transform: [{ translateX: shakeAnim }] },
+        ]}
+      >
+        <View style={inlineConfirmStyles.popup}>
+          <Text style={inlineConfirmStyles.title}>Limite Excedido</Text>
+          <LoginAnimation source={require('../assets/animations/limit_animation.json')} size={150} loop={true} />
+          <Text style={inlineConfirmStyles.message}>
+            Essa conta excede o seu limite de gastos! Você pode definí-lo na sua tela de perfil.
+          </Text>
+          <View style={inlineConfirmStyles.buttonRow}>
+            <TouchableOpacity style={inlineConfirmStyles.cancelButton} onPress={onCancel}>
+              <Text style={inlineConfirmStyles.cancelText}>Cancelar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Animated.View>
+    </View>
+  );
+};
+
 export const NewDebtModal = ({ visible, onClose }) => {
   const insets = useSafeAreaInsets();
   const modalTranslateY = useRef(new Animated.Value(1000)).current;
@@ -43,6 +106,9 @@ export const NewDebtModal = ({ visible, onClose }) => {
   const backLayer2Anim = useState(new Animated.Value(0.90))[0];
 
   const { createNewDebt, userId, getUserDebtList, getUserData, getUserBalance, canUserSpend } = useAuth();
+
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [pendingDebtData, setPendingDebtData] = useState(null);
 
   const [debtName, setDebtName] = useState('');
   const [value, setValue] = useState('');
@@ -71,6 +137,25 @@ export const NewDebtModal = ({ visible, onClose }) => {
       visible={visible}
       onRequestClose={onClose}
     >
+      <InlineConfirmPopup
+        visible={showConfirm}
+        onCancel={() => {
+          setShowConfirm(false);
+          setPendingDebtData(null);
+        }}
+        onConfirm={async () => {
+          setShowConfirm(false);
+          if (pendingDebtData) {
+            const { userId, debtName, value, paymentMethod, category, expiryDate, isRecorrent } = pendingDebtData;
+            await createDebt(userId, debtName, value, paymentMethod, category, expiryDate, isRecorrent);
+            onClose();
+            await getUserDebtList();
+            await getUserData();
+            await getUserBalance();
+            setPendingDebtData(null);
+          }
+        }}
+      />
       <SafeAreaView style={styles.safeArea}>
         <StatusBar translucent backgroundColor="transparent" style="light" />
 
@@ -166,7 +251,11 @@ export const NewDebtModal = ({ visible, onClose }) => {
                 );
 
                 if (!result) {
-                  alert("Você não pode adicionar essa conta. Ela excede seu limite disponível.");
+                  // Mostra o popup personalizado
+                  setPendingDebtData({
+                    userId, debtName, value, paymentMethod, category, expiryDate, isRecorrent
+                  });
+                  setShowConfirm(true);
                   return;
                 }
 
@@ -177,6 +266,7 @@ export const NewDebtModal = ({ visible, onClose }) => {
               }}
               placeholder="Salvar"
             />
+
           </View>
         </Animated.View>
       </SafeAreaView>
@@ -285,3 +375,67 @@ const styles = StyleSheet.create({
   },
 });
 
+const inlineConfirmStyles = StyleSheet.create({
+  overlay: {
+    position: 'absolute',
+    zIndex: 100,
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  popup: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 40,
+    width: '80%',
+    maxWidth: 350,
+    alignItems: 'center',
+  },
+  title: {
+    fontFamily: 'Inter_700Bold',
+    fontSize: 18,
+    color: '#5C8374',
+    marginBottom: 30,
+  },
+  message: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 20,
+    marginBottom: 20,
+    color: '#444',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    width: '100%',
+    marginTop: 20,
+    justifyContent: 'space-between',
+  },
+  cancelButton: {
+    flex: 1,
+    backgroundColor: '#ccc',
+    borderRadius: 50,
+    padding: 20,
+    alignItems: 'center',
+    marginHorizontal: 40,
+  },
+  confirmButton: {
+    flex: 1,
+    backgroundColor: '#5C8374',
+    borderRadius: 8,
+    padding: 12,
+    alignItems: 'center',
+  },
+  cancelText: {
+    fontFamily: 'Inter_600SemiBold',
+    color: '#333',
+  },
+  confirmText: {
+    fontFamily: 'Inter_600SemiBold',
+    color: '#fff',
+  },
+});
