@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
     Modal, View, Text, StyleSheet, SafeAreaView,
-    ScrollView, Animated, Easing
+    ScrollView, Animated, Easing, TouchableOpacity
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -19,7 +19,7 @@ const UpdateDebtModal = ({ visible, onClose, debtData, onSave }) => {
     const backLayer1Anim = useRef(new Animated.Value(0.85)).current;
     const backLayer2Anim = useRef(new Animated.Value(0.90)).current;
 
-    const { updateUserDebt, getUserBalance, getUserData, getUserDebtList } = useAuth();
+    const { updateUserDebt, getUserBalance, getUserData, getUserDebtList, payUserDebt } = useAuth();
 
     const [debtName, setDebtName] = useState('');
     const [value, setValue] = useState('');
@@ -96,9 +96,24 @@ const UpdateDebtModal = ({ visible, onClose, debtData, onSave }) => {
                         <LoginInputForm label="Data de Vencimento" value={expiryDate} onChangeText={setExpiryDate} mask={[/\d/, /\d/, /\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/]} style="light" />
                     </ScrollView>
 
+                    <TouchableOpacity
+                        style={styles.payButton}
+                        onPress={async () => {
+                            await payUserDebt(debtData.id);
+                            onClose();
+                            getUserData();
+                            getUserDebtList();
+                            getUserBalance();
+                        }}
+                    >
+                        <Text style={styles.payButtonText}>Pagar</Text>
+                    </TouchableOpacity>
+
                     <View style={styles.buttonContainer}>
                         <Button onPress={onClose} placeholder="Cancelar" />
+
                         <Button
+                            placeholder="Salvar"
                             onPress={async () => {
                                 await updateUserDebt(
                                     debtData.id,
@@ -114,7 +129,6 @@ const UpdateDebtModal = ({ visible, onClose, debtData, onSave }) => {
                                 getUserDebtList();
                                 getUserBalance();
                             }}
-                            placeholder="Salvar"
                         />
                     </View>
                 </Animated.View>
@@ -168,5 +182,20 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginTop: 10,
-    }
+    },
+    payButton: {
+        flex: 1,
+        backgroundColor: '#5C8374',
+        marginLeft: 10,
+        borderRadius: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 10,
+    },
+    payButtonText: {
+        color: 'white',
+        fontSize: 14,
+        fontFamily: 'Inter_700Bold',
+    },
 });

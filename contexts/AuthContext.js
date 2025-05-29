@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { loginUser, signUpUser, getUserData, getBalance, getDebts, listDebts, createDebt, canSpend, updateDebt, updateUserData, getWastePercent } from '../api/api';
+import { loginUser, signUpUser, getUserData, getBalance, getDebts, listDebts, createDebt, canSpend, updateDebt, updateUserData, getWastePercent, payDebt } from '../api/api';
 import * as SecureStore from 'expo-secure-store';
 import emmiter from '../utils/EventEmitter';
 
@@ -53,6 +53,15 @@ export function AuthProvider({ children }) {
     };
     autoLogOut();
   }, []);
+
+  async function payUserDebt(debtId) {
+    try {
+      const response = await payDebt(debtId);;
+      console.log('Pay request: ', response);
+    } catch (error) {
+      console.error('Erro ao pagar uma Debt: ', error)
+    }
+  }
 
   async function updateUserDebt(debtId, debtName, value, paymentType, category, expiryDate, isRecorrent) {
     try {
@@ -288,7 +297,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ token, userId, isLoading, getUserWastePercent, login, signOut, updateUserProfile, signUp, getLoggedUserData, updateUserDebt, getUserBalance, userData, userBalance, getUserDebts, userDebts, getUserDebtList, userDebtList, createNewDebt, canUserSpend }}>
+    <AuthContext.Provider value={{ token, userId, isLoading, getUserWastePercent, login, signOut, updateUserProfile, signUp, getLoggedUserData, payUserDebt, updateUserDebt, getUserBalance, userData, userBalance, getUserDebts, userDebts, getUserDebtList, userDebtList, createNewDebt, canUserSpend }}>
       {children}
     </AuthContext.Provider>
   );

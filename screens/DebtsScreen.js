@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView, View, Text, StyleSheet } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SplashLargeButton from '../components/LargeButton';
@@ -12,6 +13,20 @@ import { LastDebts, AllDebts } from '../components/BalanceCard';
 import { NewDebtButton, NewDebtModal } from '../components/NewDebtModal';
 
 const DebtsScreen = () => {
+
+       const { getUserBalance, getUserDebts } = useAuth();
+
+       useFocusEffect(
+              useCallback(() => {
+                     getUserBalance();
+                     getUserDebts();
+              }, [])
+       );
+
+       useEffect(() => {
+              getUserBalance();
+              getUserDebts();
+       }, []);
 
        NavigationBar.setBackgroundColorAsync('#ffffff00');
        NavigationBar.setPositionAsync('absolute');

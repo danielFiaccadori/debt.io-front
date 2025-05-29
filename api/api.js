@@ -31,6 +31,23 @@ api.interceptors.response.use(
   }
 );
 
+export const payDebt = async (id) => {
+  try {
+    const response = await api.delete(`/api/v1/contas/deletar/${id}`);
+    console.log(response.data);
+  } catch (error) {
+    console.error('Payment error(api): ', error);
+
+    if (error.response?.data?.validations) {
+      for (const err of error.response.data.validations) {
+        console.warn(`${err.field}: ${err.message}`);
+      }
+    }
+
+    return null;
+  }
+}
+
 export const canSpend = async (id, valorAlvo) => {
   try {
     const valorLimpo = parseFloat(
